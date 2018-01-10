@@ -9,10 +9,10 @@ plot_on  = 0;  % Set to 1 if you want to plot just before and just
 check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
 
 %% Numerical Parameters
-tmax     = 25;    % Solver will run from t=0 to t=tmax
-xmax     = 50;   % Solver will solve on domain x=0 to z=xmax
+tmax     = 5;    % Solver will run from t=0 to t=tmax
+xmax     = 100;   % Solver will solve on domain x=0 to z=xmax
                  % With an odd reflection of IC from x = -xmax to x=0
-ymax     = 50;   % Solver will solve on domain y=-ymax to y=ymax
+ymax     = 100;   % Solver will solve on domain y=-ymax to y=ymax
 numout   = tmax+1;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
 % dxinit =  1/10;     % Spatial Discretization 
@@ -20,7 +20,7 @@ t        = linspace(0,tmax,numout);  % Desired output times
 % Nx       = round(2*xmax/dxinit);
 % Ny       = round(2*ymax/dyinit);
 Nx = 2^9;
-Ny = 2^8;
+Ny = 2^9;
 if periodic
     dx       = 2*xmax/Nx;    % Spatial  discretization
 	dy       = 2*ymax/Ny;    % Spatial  discretization
@@ -34,15 +34,15 @@ lambda  = 1; % Sign on the mixed term (+1 is KP2, -1 is KP1)
 
 %% PDE Initial and Boundary Conditions
 %% Set up 'True' IC
-    % Line soliton 
-        a =@(x,y) 1; q =@(x,y) 1/4;
-        u = @(theta,x,y,a) a(x,y).*(sech(sqrt(a(x,y)/12).*theta)).^2;
-        theta = @(x,y,a,q,x0,y0) ( (x-x0) + q(x,y).*(y-y0) );
-        IC = @(X,Y) u(theta(X,Y,a,q,15,0),X,Y,a);
+%% Set up soliton function
+a =@(x,y) 3; q =@(x,y) 1/4;
+u = @(theta,x,y,a) a(x,y).*(sech(sqrt(a(x,y)/12).*theta)).^2;
+theta = @(x,y,a,q,x0,y0) ( (x-x0) + q(x,y).*(y-y0) );
+IC = @(X,Y) u(theta(X,Y,a,q,xmax/2,0),X,Y,a);
 
 %% Factor zeroing IC as y->ymax
 winspan = 2.5; % width of decay window
-w = @(Y) repmat(tukeywin(size(Y,1),winspan/Ly),[1,size(Y,2)]);
+w = @(Y) repmat(tukeywin(size(Y,1),winspan/ymax),[1,size(Y,2)]);
 
 %% Putting it all together
 u0 = @(X,Y) (IC( X,Y)-IC(X+xmax,Y)).*w(Y);
@@ -51,7 +51,7 @@ if strcmp(computer,'MACI64')
     maindir = '/Users/dhl/Documents/MATLAB';
     slant = '/';
 else
-    maindir = 'H:';
+    maindir = pwd;%'H:';
     slant = '\';
 end
 

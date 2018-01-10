@@ -19,6 +19,7 @@ end
 	v    = yinit;
     tnow = 0; inc = 0;
     u = real(ifft2(v));
+    uinit = u;
       save(strcat(data_dir,num2str(1,'%05d')),'u','v','tnow','inc');
       inc = inc + 1;
 
@@ -32,26 +33,36 @@ for jj = 2:length(tout)
             if sum(isnan(ynew))>0
                 error(['Not a Number encountered at t=',num2str(tmid(ii))]);
             end
+            yold = ynew;
         end
-        hold off;
 	% Save data
-          v1    = ynew;
-          tnow = tout(jj); inc = jj;
-      u1 = real(ifft2(v1));
-      u = u.*W; % Apply window function
-%       % Figure for debugging window fcn
+	v1    = ynew;
+	tnow = tout(jj); inc = jj;
+	u = real(ifft2(v1));
+	u = u.*W; % Apply window function
+%%       % Figure for debugging window fcn
 %       figure(5); clf;
 %         subplot(2,2,1);
 %             contourf(u1,100,'edgecolor','none'); colorbar;
 %             title('Original');
 %         subplot(2,2,2);
-%             contourf(u,100,'edgecolor','none'); colorbar;
+%             contourf(u),100,'edgecolor','none'); colorbar;
 %             title('Windowed');
 %         subplot(2,2,[3 4]);
 %             contourf(u1-u,100,'edgecolor','none'); colorbar;
 %             title('u1-u');
 %             drawnow;
 %             input('R');
+%%       %% Figure for debugging RK4
+%       if mod(jj,5)==0
+%           figure(1); 
+%             contourf(log(abs(v1-yinit)),'edgecolor','none');
+%           subplot(length(tout),1,jj);
+%             contourf(u,'edgecolor','none')
+%             drawnow;
+%           input('R');
+%       end
+      %% Save v
       v = fft2(u);
       save(strcat(data_dir,num2str(jj,'%05d')),'u','v','tnow','inc');
       inc = inc +1;
