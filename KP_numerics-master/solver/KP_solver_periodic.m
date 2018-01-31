@@ -21,10 +21,11 @@ function KP_solver_periodic( t, Lx, Nx,...
 %
 % Outputs:  NONE except for data written to files
 
-%% Set up temporal vector, increment counter
-global tout inc
+%% Set up temporal vector, increment counter, data directory
+global tout inc dir
     tout = t;
     inc  = 0;
+    dir  = data_dir;
     dt   = 10^-3;
 
 %% Rescale spatial grid to be from [-pi,pi]
@@ -47,12 +48,13 @@ domain = struct;
     
 %% Windowing function (from Kao 2010), rescaled, and derivs
 n = 27; an = (1.111)^n*log(10);
-W = @(y) exp( -an * abs(y/pi).^n );
-Wp = @(y) -an*n/pi * W(y) .* abs(y/pi).^(n-1).*sign(y/pi);
-Wpp = @(y) an*n/pi^2 * W(y) .* abs(y/pi).^(n-2) .* ...
-           ( (-(n-1) + an*n*abs(y/pi).^n).*sign(y/pi).^2 );
+W = exp( -an * abs(domain.Y/pi).^n );
+Wp = -an*n/pi * W .* abs(domain.Y/pi).^(n-1).*sign(domain.Y/pi);
+Wpp = an*n/pi^2 * W .* abs(domain.Y/pi).^(n-2) .* ...
+           ( (-(n-1) + an*n*abs(domain.Y/pi).^n).*sign(domain.Y/pi).^2 );
     
 %% Write static matrices here, so not constantly redefining
+%% TODO: Remove o, add W and its derivs
     o = eps; % Attempt to remove possible issue of dividing by 0
     % integrating factor exponent
     iphi = 1i*(pi*Lx/(Ly^2)*domain.KY.^2./(domain.KX+o)-(pi/Lx)^3*domain.KX.^3); 
@@ -82,7 +84,7 @@ Wpp = @(y) an*n/pi^2 * W(y) .* abs(y/pi).^(n-2) .* ...
 	start = tic;
 
 %% Call the solver
-    myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy, dt, tout, W, Wp, Wpp,...
+    myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy, dt, W, Wp, Wpp,...
                     iphi, domain )
  
 %% Finish and clean up

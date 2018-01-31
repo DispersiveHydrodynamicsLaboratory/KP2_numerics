@@ -1,5 +1,5 @@
 function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
-                    dt, tout, W, Wp, Wpp,...
+                    dt, W, Wp, Wpp,...
                     iphi, domain)
 %myRK4_KP2 is a modified fourth-order explicit Runge-Kutta timestepping method
 % Includes variables and saving methods specific to a KP2 solver
@@ -25,14 +25,14 @@ function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
 % OUTPUTS:
 %   (none except to file)
 
-    % Initialize solver
-    inc = 1;
-    Vold = Vhat_init;
+    % Call global variables; initialize RK4 method
+    global tout inc dir
+    Vold = Vhat_init; % fft'd, unshifted, decayed IC
 
     % Subsequent time steps
-    for jj = 2:length(tout)
-        disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout))]);
-            tmid = linspace(tout(jj-1),tout(jj),ceil((tout(jj)-tout(jj-1))/dt)+1);
+    for jj = 1:length(tout)-1
+        disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout)-1)]);
+            tmid = linspace(tout(jj),tout(jj+1),ceil((tout(jj+1)-tout(jj))/dt)+1);
             for ii = 2:length(tmid)
                 Vnew = RK4(tmid(ii-1), tmid(ii)-tmid(ii-1), Vold, uasy, dxuasy, dyuasy,...
                             W, Wp, Wpp, iphi, domain );
@@ -41,15 +41,12 @@ function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
                 end
                 Vold = Vnew;
             end
-        %% MM: BELOW NEEDS EDITS
+        
         %% Save data
-        v1    = Vnew;
-        tnow = tout(jj); inc = jj;
-        u = real(ifft2(v1));
-        u = u.*W; % Apply window function
-          %% Save v
-          v = fft2(u);
-          save(strcat(data_dir,num2str(jj,'%05d')),'u','v','tnow','inc');
+        v    = Vnew.*exp(-iphi*tout(jj+1));
+        tnow = tout(jj+1);
+        u = real(ifft2(v));
+          save(strcat(dir,num2str(inc,'%05d')),'u','v','tnow','inc');
           inc = inc +1;
     end
 
@@ -78,29 +75,18 @@ function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, Wp, Wpp, iphi, dom
              uasy(X,Y,t+dt)  , dxuasy(X,Y,t+dt)  , dyuasy(X,Y,t+dt)  ,...
              W, Wp, Wpp, iphi, domain );
     Vhatnew = Vhat + dt*(Va + 2*(Vb+Vc) + Vd)/6;
-
+    disp('')
     
 
 function Gv = G( t, v, uasy, dxuasy, dyuasy, W, Wp, Wpp, iphi, domain )
     RHS = (pi/domain.Lx)*(1-W(domain.Y)) .*...
           ifft2(1i*domain.KX.*fft2(W(domain.Y).*uasy.* dxuasy -...
-                            1i*domain.KX.*(ifft2(v).*uasy)))  + ...
+                            ifft2(1i*domain.KX.*fft2(ifft2(v).*uasy)) ))  + ...
           (pi*domain.Lx/domain.Ly) .*...
           ( 2*Wp(domain.Y).*dyuasy + Wpp(domain.Y).*uasy ) ;
     RHShat = fft2(RHS);
 	v2hat  = fft2(ifft2(v).^2);
-    Gv = exp(iphi*t).*( 1./(1i*domain.KX+eps).*RHShat -...
+    Gv = exp(iphi*t).*( (1./(1i*domain.KX).*RHShat) -...
                         (1i*domain.KX*pi)./(2*domain.Lx).*v2hat );
+	Gv(domain.KX==0) = 0;
     disp('');
-
-
-% function Vx = D1x(V,dx)
-% % Function for calculating the first centered difference of a matrix
-%     Vx  = 1/(2*dx)*( -[V(:,end) V(:,1:end-1)] + [V(:,2:end) V(:,1)]);
-% 
-%    
-% 
-% function Vy = D1y(V,dy)
-% % Function for calculating the first centered difference of a matrix
-%     Vy  = 1/(2*dy)*( -[V(end,:)' V(1:end-1,:)'] + [V(2:end,:)' V(1,:)']);
-    
