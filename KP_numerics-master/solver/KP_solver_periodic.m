@@ -1,6 +1,6 @@
 function KP_solver_periodic( t, Lx, Nx,...
                                 Ly, Ny,...
-                                u0, uasy,...
+                                u0, uasy, dxuasy, dyuasy,...
                                 data_dir )
 % Solves: KP eq. (u_t + uu_x + u_xxx)_x + u_yy = 0
 % on [-xmax,xmax] & [-ymax,ymax] by FFT in space with
@@ -28,48 +28,45 @@ global tout inc
     dt   = 10^-3;
 
 %% Rescale spatial grid to be from [-pi,pi]
-    x = (2*pi/Nx)*(-Nx/2:Nx/2-1)';
-    y = (2*pi/Ny)*(-Ny/2:Ny/2-1)';
-    [X,Y] = meshgrid(x,y);
-    k = [0:Nx/2-1 0 -Nx/2+1:-1]';
-    l = [0:Ny/2-1 0 -Ny/2+1:-1]';
-    [KX,KY] = meshgrid(k,l);
-    u0 = @(x,y) u0(Lx/pi*x,Ly/pi*y);
-    uasy = @(x,y,t) uasy(Lx/pi*x,Ly/pi*y,t);
+domain = struct;
+    domain.x = (2*pi/Nx)*(-Nx/2:Nx/2-1)';
+   domain.dx = (2*pi/Nx);
+   domain.Lx = Lx;
+    domain.y = (2*pi/Ny)*(-Ny/2:Ny/2-1)';
+   domain.dy = (2*pi/Ny);
+   domain.Ly = Ly;
+    [domain.X,domain.Y] = meshgrid(domain.x,domain.y);
+    domain.k = [0:Nx/2-1 0 -Nx/2+1:-1]';
+    domain.l = [0:Ny/2-1 0 -Ny/2+1:-1]';
+    [domain.KX,domain.KY] = meshgrid(domain.k,domain.l);
+    % Rescale IC, asymptotic solution accordingly
+        u0 = @(x,y) u0(Lx/pi*x,Ly/pi*y);
+        uasy = @(x,y,t)   uasy(Lx/pi*x,Ly/pi*y,t);
+      dxuasy = @(x,y,t) dxuasy(Lx/pi*x,Ly/pi*y,t);
+      dyuasy = @(x,y,t) dyuasy(Lx/pi*x,Ly/pi*y,t);
     
 %% Windowing function (from Kao 2010), rescaled, and derivs
 n = 27; an = (1.111)^n*log(10);
-W = @(y) exp( an * abs(y/pi)^n );
-Wp = @(y) an*n/p * W(y) * abs(y/pi)^(n-1)*sign(y/pi);
-Wpp = @(y) an*n/p^2 * W(y) * abs(y/pi)^(n-2) * ...
-           ( (n-1 + an*n*abs(y/pi)^n)*sgn(y/pi)^2 );
+W = @(y) exp( -an * abs(y/pi).^n );
+Wp = @(y) -an*n/pi * W(y) .* abs(y/pi).^(n-1).*sign(y/pi);
+Wpp = @(y) an*n/pi^2 * W(y) .* abs(y/pi).^(n-2) .* ...
+           ( (-(n-1) + an*n*abs(y/pi).^n).*sign(y/pi).^2 );
     
 %% Write static matrices here, so not constantly redefining
     o = eps; % Attempt to remove possible issue of dividing by 0
     % integrating factor exponent
-    iphi = 1i*(pi*Lax/(ly^2)*KY.^2./(KX+1i*o)-(pi/Lx)^3*KX.^3); 
-    %% MM: NEEDS WORK: NEEDS D1x and D1y for 2D 
-    % First derivative (2nd order centered diff)
-	D1  = 1/(2*dz) * spdiags([ -ones(Nz,1),...
-                                  zeros(Nz,1),...
-                                  ones(Nz,1)],...
-                               -1:1, Nz,Nz);
-	% Second Derivative (2nd order centered diff)
-	D2  = 1/(dz^2) * spdiags([  ones(Nz,1),...
-                               -2*ones(Nz,1),...
-                                  ones(Nz,1) ],...
-                               -1:1,Nz,Nz);
-
+    iphi = 1i*(pi*Lx/(Ly^2)*domain.KY.^2./(domain.KX+o)-(pi/Lx)^3*domain.KX.^3); 
+    
 %% Save variables, prepping to call the solver
     % Output what we are about to do
     disp(['Solving KP eqtn.']);
     disp([' Time interval:  [', num2str(t(1)),...
            ',',num2str(t(end)),']']);
     % Construct initial condition on spatial domain
-    u_init = u0(X,Y);
+    u_init = u0(domain.X,domain.Y);
     u      = u_init; tnow = min(t);
     % Construct initial v, the windowed version of u
-    v_init = u_init - (1 - W(Y)) * uasy(X,Y,0);
+    v_init = u_init - (1 - W(domain.Y)) .* uasy(domain.X,domain.Y,0);
     v      = v_init;
     % Construct initial Vhat, the fft'd, integrating factored v
     Vhat_init = fft2(v_init);
@@ -85,8 +82,8 @@ Wpp = @(y) an*n/p^2 * W(y) * abs(y/pi)^(n-2) * ...
 	start = tic;
 
 %% Call the solver
-    myRK4_KP2( Vhat_init, uasy, dt, tout, W, Wp, Wpp,...
-                    iphi, D1x, D1y, KX)
+    myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy, dt, tout, W, Wp, Wpp,...
+                    iphi, domain )
  
 %% Finish and clean up
     finish = toc(start);
