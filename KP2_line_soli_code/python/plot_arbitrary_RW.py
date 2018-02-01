@@ -9,11 +9,11 @@ import scipy as sp
 
 def main():
     # Define soliton parameters
-    al = 4          # Left hand side (LHS) soliton's amplitude
-    ql = -0.5       # LHS soliton's angle of propagation
-    ar = 2.5          # RHS soliton's amplitude
-    qr = -0.75      # LHS soliton's angle of propagation
-    m  = -1         # Slope of line over which jump in parameters occurs
+    sal = 1.75          # Left hand side (LHS) soliton's amplitude
+    ql  = 2+sal       # LHS soliton's angle of propagation
+    sar = 0.25          # RHS soliton's amplitude
+    qr  = -1-sar      # LHS soliton's angle of propagation
+    m   = -1         # Slope of line over which jump in parameters occurs
     
     # Define (x,y,t)
     Lx = 30
@@ -24,9 +24,9 @@ def main():
     y  = np.linspace(-Ly,Ly,Ny)
     t  = 5
     
-    # Put soliton amplitudes in usable form
-    sal = np.sqrt(al)
-    sar = np.sqrt(ar)
+    # # Put soliton amplitudes in usable form
+    # sal = np.sqrt(al)
+    # sar = np.sqrt(ar)
     
     # Run check for consistencies
     # Will return 0 and readout if inconsistencies
@@ -62,12 +62,12 @@ def condition_check(sal,ql,sar,qr,m):
     # Check based on middle speeds (i.e. no RW interaction)
     # Actual checks (MM: might be able to reduce these?)
     # ms0 = ( (R1r==2/m+R2l) & (R2l==-1/m) ) # should be in other cases
-    ms1 = ( (R1r+R2l>=0) & (R2l<-1/m) & (R1r>=2/m+R2l) )
-    ms2 = ( (R1r+R2l<=0) & (R2l>-1/m) & (R1r<=2/m+R2l)  )
-    if verbose:
-        print(' ms1: ', ms1,' ms2: ',ms2)
-        print('R1r: ',R1r,' R2l: ',R2l,' -1/m: ',-1/m)
-    if ~(ms1 & ms2 ):
+    ms1 = ( (R1r+R2l>=0) & (R2l>=-1/m) & (R1r<=2/m+R2l) )
+    ms2 = ( (R1r+R2l<=0) & (R2l<=-1/m) & (R1r>=2/m+R2l)  )
+    # if verbose:
+    #     print(' ms1: ', ms1,' ms2: ',ms2)
+    #     print('R1r: ',R1r,' R2l: ',R2l,' -1/m: ',-1/m)
+    if not ( ms1 or ms2 ):
         print('Middle speed violation.')
         print(' ms1: ', ms1,' ms2: ',ms2)
         print('R1r: ',R1r,' R2l: ',R2l,' -1/m: ',-1/m)
@@ -83,7 +83,7 @@ def condition_check(sal,ql,sar,qr,m):
         R2c = R2l>=R2r;
         if ~(R1c & R2c):
             print('R.I. violation for Case 1');
-            print('R1c: ', R1c, ' R2c: ', R2c);
+            print('R1c (R1l<=R1r): ', R1c, ' R2c (R2l>=R2r): ', R2c);
             return False
         if verbose:
             print('Case 1 confirmed')
@@ -98,7 +98,7 @@ def condition_check(sal,ql,sar,qr,m):
         R2c = R2l<R2r;
         if ~(R1c & R2c):
             print('R.I. violation for Case 2');
-            print('R1c: ', R1c, ' R2c: ', R2c);
+            print('R1c (R1l>R1r): ', R1c, ' R2c (R2l<R2r): ', R2c);
             return False
         if verbose:
             print('Case 2 confirmed')
