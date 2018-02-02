@@ -41,20 +41,19 @@ domain = struct;
     domain.l = [0:Ny/2-1 0 -Ny/2+1:-1]';
     [domain.KX,domain.KY] = meshgrid(domain.k,domain.l);
     % Rescale IC, asymptotic solution accordingly
-        u0 = @(x,y) u0(Lx/pi*x,Ly/pi*y);
+        u0   = @(x,y) u0(Lx/pi*x,Ly/pi*y);
         uasy = @(x,y,t)   uasy(Lx/pi*x,Ly/pi*y,t);
       dxuasy = @(x,y,t) dxuasy(Lx/pi*x,Ly/pi*y,t);
       dyuasy = @(x,y,t) dyuasy(Lx/pi*x,Ly/pi*y,t);
     
-%% Windowing function (from Kao 2010), rescaled, and derivs
-n = 27; an = (1.111)^n*log(10);
-W = exp( -an * abs(domain.Y/pi).^n );
-Wp = -an*n/pi * W .* abs(domain.Y/pi).^(n-1).*sign(domain.Y/pi);
-Wpp = an*n/pi^2 * W .* abs(domain.Y/pi).^(n-2) .* ...
-           ( (-(n-1) + an*n*abs(domain.Y/pi).^n).*sign(domain.Y/pi).^2 );
-    
-%% Write static matrices here, so not constantly redefining
-%% TODO: Remove o, add W and its derivs
+%% Write static matrices here, so not constantly redefining  
+    %% Windowing function (from Kao 2010), rescaled, and derivs
+    n = 27; an = (1.111)^n*log(10);
+    W = exp( -an * abs(domain.Y/pi).^n );
+    Wp = -an*n/pi * W .* abs(domain.Y/pi).^(n-1).*sign(domain.Y/pi);
+    Wpp = an*n/pi^2 * W .* abs(domain.Y/pi).^(n-2) .* ...
+               ( (-(n-1) + an*n*abs(domain.Y/pi).^n).*sign(domain.Y/pi).^2 );
+	%% iphi
     o = eps; % Attempt to remove possible issue of dividing by 0
     % integrating factor exponent
     iphi = 1i*(pi*Lx/(Ly^2)*domain.KY.^2./(domain.KX+o)-(pi/Lx)^3*domain.KX.^3); 
@@ -68,7 +67,7 @@ Wpp = an*n/pi^2 * W .* abs(domain.Y/pi).^(n-2) .* ...
     u_init = u0(domain.X,domain.Y);
     u      = u_init; tnow = min(t);
     % Construct initial v, the windowed version of u
-    v_init = u_init - (1 - W(domain.Y)) .* uasy(domain.X,domain.Y,0);
+    v_init = u_init - (1 - W) .* uasy(domain.X,domain.Y,0);
     v      = v_init;
     % Construct initial Vhat, the fft'd, integrating factored v
     Vhat_init = fft2(v_init);
