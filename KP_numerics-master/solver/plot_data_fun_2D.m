@@ -78,7 +78,11 @@ function plot_data_fun_2D(loaddir,varargin)
     clf()
     % Plot initial condition
     load(strcat(loaddir,num2str(0,'%05d'),'.mat'),'u_init');
-    h(1)=subplot(nplts,1,1);
+    if nplts==6
+        h(1) = subplot(2,3,1);
+    else
+        h(1)=subplot(nplts,1,1);
+    end
         contourf(x(xp),y(yp),u_init(yp,xp),100,'edgecolor','none');
                     colorbar; 
     set(gca,'fontsize',fontsize,'fontname','times');
@@ -89,7 +93,9 @@ function plot_data_fun_2D(loaddir,varargin)
     title({['$t = 0$']},'interpreter','latex');
     for ii=1:max(nplts-1,1)
         load(strcat(loaddir,num2str(toutind(ii),'%05d'),'.mat'),'u','tnow','inc');
-        if nplts ~= 1
+        if nplts == 6
+            h(ii+1) = subplot(2,3,ii+1);
+        elseif nplts ~= 1
             h(ii+1) = subplot(nplts,1,ii+1);
         else
             h(1) = subplot(1,1,1);

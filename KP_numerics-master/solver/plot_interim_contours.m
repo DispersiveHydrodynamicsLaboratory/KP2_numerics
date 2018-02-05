@@ -31,10 +31,10 @@ if 0 % Plot RK4 IC, beginning and end
             colorbar;
 end
 
-if 0 % Plot RK4 intermediates
+if 1 % Plot RK4 intermediates
     figure(3); clf;
         subplot(2,3,1);
-            contourf(domain.KX,domain.KY,abs(vhat),100,'edgecolor','none');
+            contourf(domain.X,domain.Y,abs(ifft2(exp(-(t)*iphi).*vhat)),100,'edgecolor','none');
             colorbar;
         subplot(2,3,2);
             contourf(domain.KX,domain.KY,abs(Va),100,'edgecolor','none');
@@ -47,6 +47,9 @@ if 0 % Plot RK4 intermediates
             colorbar;
         subplot(2,3,5);
             contourf(domain.KX,domain.KY,abs(Vd),100,'edgecolor','none')
+            colorbar;
+        subplot(2,3,6);
+            contourf(domain.X,domain.Y,abs(ifft2(exp(-(t+dt)*iphi).*Vhatnew)),100,'edgecolor','none')
             colorbar;
 end
 
@@ -88,7 +91,7 @@ if 0 % Plot derivative intermediates
             colorbar;
 end
 
-if 1 % IC and other plots from loading data directory
+if 0 % IC and other plots from loading data directory
     numouts = [1 2 3 4];
 	load(strcat(data_dir,num2str(0,'%05d'),'.mat'),'u_init');
     load([data_dir,'parameters.mat'],'t','Nx','Ny','Lx','Ly'); %,'f');
@@ -106,3 +109,5 @@ if 1 % IC and other plots from loading data directory
     end 
     drawnow;
 end
+
+drawnow;
