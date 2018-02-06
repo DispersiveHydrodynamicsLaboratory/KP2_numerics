@@ -69,13 +69,35 @@ if 0 % Troubleshooting RK4 intermediates
 %             colorbar;
 end
 
+if 0 % Troubleshooting GV initialization
+    figure(3); clf;
+        subplot(2,3,1);
+            contourf(domain.X,domain.Y,real(ifft2(Vhat)),100,'edgecolor','none');
+            colorbar;
+        subplot(2,3,2);
+            contourf(domain.KX,domain.KY,abs(Ezero),100,'edgecolor','none');
+            colorbar;
+        subplot(2,3,3);
+            contourf(domain.KX,domain.KY,abs(Ehalf),100,'edgecolor','none');
+            colorbar;
+        subplot(2,3,4);
+            contourf(domain.KX,domain.KY,abs(Eone),100,'edgecolor','none')
+            colorbar;
+        subplot(2,3,5);
+            contourf(domain.X,domain.Y,ifft2(Ezeroi.* Vhat),100,'edgecolor','none')
+            colorbar;
+%         subplot(2,3,6);
+%             contourf(domain.KX,domain.KY,imag(Gv),100,'edgecolor','none')
+%             colorbar;
+end
+
 if 0 % Plot derivative intermediates
     figure(3); clf;
         subplot(2,3,1);
-            contourf(domain.X,domain.Y,ifft2(v),100,'edgecolor','none');
+            contourf(domain.X,domain.Y,real(ifft2(vhat)),100,'edgecolor','none');
             colorbar;
         subplot(2,3,2);
-            contourf(domain.X,domain.Y,RHS,100,'edgecolor','none');
+            contourf(domain.X,domain.Y,real(RHS),100,'edgecolor','none');
             colorbar;
         subplot(2,3,3);
             contourf(domain.KX,domain.KY,abs(RHShat),100,'edgecolor','none');

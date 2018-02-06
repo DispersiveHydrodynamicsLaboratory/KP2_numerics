@@ -1,6 +1,5 @@
-function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
-                    dt, W, Wp, Wpp,...
-                    iphi, domain)
+function myRK4_KP2( Vhat_init, soli,...
+                    dt, W, iphi, domain)
 %myRK4_KP2 is a modified fourth-order explicit Runge-Kutta timestepping method
 % Includes variables and saving methods specific to a KP2 solver
 % IMPORTANT: assumes function is not t-dependent
@@ -8,9 +7,8 @@ function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
 %   u_init:      Initial condition
 %   v_init:      Initial condition, windowed
 %   Vhat_init:   Initial condition, windowed, FFT'd, and int-factored
-%   uasy:        Function that matches the unwindowed solution for large y
-    %   dxuasy:     its derivative wrt x
-    %   dyuasy:     its derivative wrt y
+%   soli     :   structure containing IC and asymptotic approximation 
+%                   of solution and its derivs over time
 %   dt:          Time stepping increment (approximate)
 %   tout:        Times to be output
 %   W, Wp, Wpp:  Windowing function and its derivatives (exact)
@@ -34,28 +32,31 @@ function myRK4_KP2( Vhat_init, uasy, dxuasy, dyuasy,...
         disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout)-1)]);
             tmid = linspace(tout(jj),tout(jj+1),ceil((tout(jj+1)-tout(jj))/dt)+1);
             for ii = 2:length(tmid)
-                Vnew = RK4(tmid(ii-1), tmid(ii)-tmid(ii-1), Vold, uasy, dxuasy, dyuasy,...
-                            W, Wp, Wpp, iphi, domain );
+                Vnew = RK4(tmid(ii-1), tmid(ii)-tmid(ii-1), Vold, ...
+                            soli.ua, soli.uax, soli.uay,...
+                            W, iphi, domain );
                 if sum(isnan(Vnew(:)))>0
                     error(['Not a Number encountered at t=',num2str(tmid(ii))]);
                 end
-%                 % Figure for debugging
-%                 plot_interim_contours;
-%                 disp('');
+                % Figure for debugging
+%                 if tout(jj+1)>0.5
+%                     plot_interim_contours;
+%                     disp('');
+%                 end
                 Vold = Vnew;
             end
         disp('');
         %% Save data
         v    = Vnew.*exp(-iphi*tout(jj+1));
         tnow = tout(jj+1);
-        u = real(ifft2(v));
+        u = real(ifft2(v)) + (1-W.o).*soli.ua(domain.X,domain.Y,tnow);
           save(strcat(dir,num2str(inc,'%05d')),'u','v','tnow','inc');
           inc = inc +1;
     end
 
 
 % KP2 RK4 function
-function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, Wp, Wpp, iphi, domain );
+function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, iphi, domain );
 % Solves: KP eq. (u_t + uu_x + epsilon^2 u_xxx)_x + lambda u_yy = 0
 % on [-xmax,xmax] & [-ymax,ymax] by FFT in space with integrating factor 
 % v = exp[+i(k^3*epsilon^2-lambda*l^2/k)t]*u_hat
@@ -63,35 +64,37 @@ function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, Wp, Wpp, iphi, dom
     % Domain names for ease
     X = domain.X; Y = domain.Y;
     % Exponentials to change Vhat to vhat
-    Ezero = exp(-t.*iphi); Ehalf  = exp(-(t+dt/2).*iphi); Eone = exp(-(t+dt)*iphi);
-    vhat = Vhat.*Ezero;
-    Va  = G( Ezero.^(-1), vhat                ,...
+    Ezero = exp( t      .*iphi);  Ezeroi = exp(- t      .*iphi);
+    Ehalf = exp((t+dt/2).*iphi);  Ehalfi = exp(-(t+dt/2).*iphi);
+    Eone  = exp((t+dt)  .*iphi);  Eonei  = exp(-(t+dt  ).*iphi);
+    Va  = G( Ezero, Ezeroi.* Vhat          ,...
              uasy(X,Y,t)     , dxuasy(X,Y,t)     , dyuasy(X,Y,t)     ,...
-             W, Wp, Wpp, iphi, domain );
-    Vb  = G( Ehalf.^(-1), vhat+Ezero.*Va/2*dt ,...
+             W, domain );
+    Vb  = G( Ehalf, Ehalfi.*(Vhat+dt/2*Va) ,...
              uasy(X,Y,t+dt/2), dxuasy(X,Y,t+dt/2), dyuasy(X,Y,t+dt/2),...
-             W, Wp, Wpp, iphi, domain );     % 4th-order
-    Vc  = G( Ehalf.^(-1), vhat+Ehalf.*Vb/2*dt ,...
+             W, domain );     % 4th-order
+    Vc  = G( Ehalf, Ehalfi.*(Vhat+dt/2*Vb) ,...
              uasy(X,Y,t+dt/2), dxuasy(X,Y,t+dt/2), dyuasy(X,Y,t+dt/2),...
-             W, Wp, Wpp, iphi, domain );     % Runge-Kutta
-    Vd  = G( Eone.^(-1), vhat+Ehalf.*Vc/2*dt ,...
+             W, domain );     % Runge-Kutta
+    Vd  = G( Eone, Eonei  .*(Vhat+dt*Vc) ,...
              uasy(X,Y,t+dt)  , dxuasy(X,Y,t+dt)  , dyuasy(X,Y,t+dt)  ,...
-             W, Wp, Wpp, iphi, domain );
+             W, domain );
     Vhatnew = Vhat + dt*(Va + 2*(Vb+Vc) + Vd)/6;
 %     plot_interim_contours;
 %     disp('');
     
 
-function GV = G( Et, v, uasy, dxuasy, dyuasy, W, Wp, Wpp, iphi, domain )
-    RHS = (pi/domain.Lx)*(1-W) .*...
-          ifft2(1i*domain.KX.*fft2(W.*uasy.* dxuasy -...
-                            ifft2(1i*domain.KX.*fft2(ifft2(v).*uasy)) ))  + ...
-          (pi*domain.Lx/domain.Ly) .*...
-          ( 2*Wp.*dyuasy + Wpp.*uasy ) ;
+function GV = G( Et, vhat, uasy, dxuasy, dyuasy, W, domain )
+    v = ifft2(vhat);
+    RHS = (1-W.o) .*...
+          ifft2( 1i*domain.KX.*fft2( W.o.*uasy.* dxuasy -...
+                 ifft2(1i*domain.KX.*fft2(v.*uasy)) ))  + ...
+          ( 2*W.p.*dyuasy + W.pp.*uasy ) ;
     RHShat = fft2(RHS);
-	v2hat  = fft2(ifft2(v).^2);
-    GV  = Et.*( (1./(1i*domain.KX).*RHShat) -...
-                        (1i*domain.KX*pi)./(2*domain.Lx).*v2hat );
+	v2hat  = fft2(v.^2);
+    GV  = Et.*( 1./(1i*domain.KX).*RHShat -...
+                    1i*domain.KX./2.*v2hat );
+% 	GV  = Et.*(1i*domain.KX./2.*v2hat );
 % 	Gv0 = ( -(1i*domain.KX*pi)./(2*domain.Lx).*v2hat );
     GV(domain.KX==0) = 0;%Gv0(domain.KX==0);
     disp('');
