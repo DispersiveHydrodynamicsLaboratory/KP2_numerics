@@ -83,7 +83,7 @@ function plot_data_fun_2D(loaddir,varargin)
     else
         h(1)=subplot(nplts,1,1);
     end
-        surf(x(xp),y(yp),u_init(yp,xp),'edgecolor','none');
+        contourf(x(xp),y(yp),u_init(yp,xp),100,'edgecolor','none');
                     colorbar; 
     set(gca,'fontsize',fontsize,'fontname','times');
     ylabel('$u$','interpreter','latex');
@@ -100,7 +100,7 @@ function plot_data_fun_2D(loaddir,varargin)
         else
             h(1) = subplot(1,1,1);
         end
-        surf(x(xp),y(yp),real(u(yp,xp)),'edgecolor','none');
+        contourf(x(xp),y(yp),real(u(yp,xp)),100,'edgecolor','none');
         caxis([umin umax])
         set(gca,'fontsize',fontsize,'fontname','times');
         ylabel('$y$','interpreter','latex');
@@ -114,4 +114,4 @@ function plot_data_fun_2D(loaddir,varargin)
             title({['$t = ',num2str(t(1)),'$']},'interpreter','latex');
         end
     end
-% linkaxes(h,'xy')
+linkaxes(h,'xy')

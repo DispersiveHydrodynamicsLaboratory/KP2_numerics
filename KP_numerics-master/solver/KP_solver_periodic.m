@@ -1,6 +1,6 @@
 function KP_solver_periodic( t, Lx, Nx,...
                                 Ly, Ny,...
-                                soli,...
+                                u0,...
                                 data_dir )
 % Solves: KP eq. (u_t + uu_x + u_xxx)_x + u_yy = 0
 % on [-xmax,xmax] & [-ymax,ymax] by FFT in space with
@@ -14,7 +14,7 @@ function KP_solver_periodic( t, Lx, Nx,...
 % t        :  1D array of output times
 % Lx, Nx   :  spatial grid parameters (x)
 % Ly, Ny   :  spatial grid parameters (y)
-% soli     :  structure containing IC and asymptotic approximation 
+% u0     :  structure containing IC and asymptotic approximation 
 %             of solution and its derivs over time
 % data_dir : output directory where data at each output timestep
 %             is written to a file #####.mat
@@ -59,10 +59,10 @@ domain = struct;
     disp([' Time interval:  [', num2str(t(1)),...
            ',',num2str(t(end)),']']);
     % Construct initial condition on spatial domain
-    u_init = soli.u0(domain.X,domain.Y);
+    u_init = u0.u0(domain.X,domain.Y);
     u      = u_init; tnow = min(t);
     % Construct initial v, the windowed version of u
-    v_init = u_init - (1 - W.o) .* soli.ua(domain.X,domain.Y,0);
+    v_init = u_init - (1 - W.o) .* u0.ua(domain.X,domain.Y,0);
     v      = v_init;
     % Construct initial Vhat, the fft'd, integrating factored v
     Vhat_init = fft2(v_init);
@@ -80,7 +80,7 @@ domain = struct;
 	start = tic;
 
 %% Call the solver
-    myRK4_KP2( Vhat_init, soli, dt, W,...
+    myRK4_KP2( Vhat_init, u0, dt, W,...
                     iphi, domain)
  
 %% Finish and clean up
@@ -93,4 +93,4 @@ domain = struct;
         int2str(time_left(4)),'h ',...
         int2str(time_left(5)),'m ',...
         num2str(time_left(6)),'s']);
-    
+   save([data_dir,'parameters.mat'],'finish','-append'); 
