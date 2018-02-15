@@ -4,7 +4,7 @@ function [ soli ] = one_soli( sa, qa, x0, Lx )
 % sa: square root of the amplitude
 % qa: slope of the angle of propagation
 
-verbose = 1; % nonzero means plotting, text output, etc
+verbose = 0; % nonzero means plotting, text output, etc
 
 %% Define Soliton parameters and derivatives in x and y
     soli.a     = @(x,y,t) sa^2 .* ones(size(x));

@@ -4,7 +4,7 @@ this_dir = regexp(pwd,filesep,'split');
 plot_on = 1;
 save_on = 1;
 
-Nexps = 6:9;
+Nexps = 8;%6:9;
 Ne_max_err = zeros(1,length(Nexps));
 
 if save_on
@@ -55,7 +55,7 @@ end
         end
         %% Load final time, evolved IC
         load([data_dir,'parameters.mat'],'soli');
-        load([data_dir,num2str(50,'%05d'),'.mat'],'u');
+        load([data_dir,num2str(50,'%05d'),'.mat'],'u','tnow');
         %% Compare 
         x = (2*Lx/Nx)*(-Nx/2:Nx/2-1)';
         y = (2*Ly/Ny)*(-Ny/2:Ny/2-1)';

@@ -1,4 +1,4 @@
-function KP_solver_periodic( t, Lx, Nx,...
+function KP_solver_periodic( t, Lx, Nx, Nt,...
                                 Ly, Ny,...
                                 u0,...
                                 data_dir )
@@ -26,7 +26,7 @@ global tout inc dir
     tout = t;
     inc  = 0;
     dir  = data_dir;
-    dt   = 10^-3;
+    dt   = 10^-Nt;
 
 %% Define spatial and wavenumber grids
 domain = struct;

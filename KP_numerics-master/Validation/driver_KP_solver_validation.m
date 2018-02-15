@@ -2,7 +2,7 @@
 %% Domain, ICs, etc go here
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                % to 0 if you want to plot
-rmdir_on = 1;  % Set to nonzero if you want to delete and remake the chosen directory
+rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen directory
                % Useful for debugging
 periodic = 1;  % setto nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
@@ -10,7 +10,7 @@ plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
-for Nexp = [6:9]
+for Nexp = 9%[6:9]
 
     %% Numerical Parameters
     tmax   = 5;      % Solver will run from t=0 to t = tmax
@@ -21,9 +21,10 @@ for Nexp = [6:9]
     Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
 
     t      = linspace(0,tmax,numout);
-
+   Nt      = 4;
+   dt      = 10^(-Nt);
     %% Initial Condition and large-y approximation in time
-        ic_type = ['KP2_validation_Nexp_',num2str(Nexp)];
+        ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt)];
         %% One-soliton, corrected for nonzero integral in x
             sa = 0.5; q = 0.75; x0 = 0;
             [ soli ] = one_soli(sa,q,x0,Lx);
@@ -100,10 +101,10 @@ for Nexp = [6:9]
         % Save parameters
             save(savefile,'t','Nx','Lx',...
                               'Ny','Ly',...
-                              'soli',...
+                              'soli','Nt',...
                               'periodic');
         % Run timestepper
-            KP_solver_periodic( t, Lx, Nx,...
+            KP_solver_periodic( t, Lx, Nx, Nt,...
                                    Ly, Ny,...
                                    soli,...
                                    data_dir );     
@@ -114,4 +115,7 @@ end
 
 if plot_on
     plot_data_fun_2D(data_dir);
+    figure(4);
+    print('validation','-dpng');
+    send_mail_message('mdmaide2','Matlab','Is this working','validation.png')
 end
