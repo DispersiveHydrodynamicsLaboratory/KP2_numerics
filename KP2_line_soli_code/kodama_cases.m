@@ -30,10 +30,10 @@ fh = figure(1); clf; set(gcf,'Color','White');
     title(['RWs, no x-variation']);
     xlabel(['a_- - a_+']);
     ylabel(['q_+ - q_-']);
-        text([-15/2,0,0,15/2],[0,-15/2,15/2,0],...
-        [{'1-shock, 2-RW'},{'all shocks'},{'all RWs'},{'1-RW, 2-shock'}],...
+        text([-19/2,0,0,19/2],[0,-20/2,20/2,0],...
+        [{'1S, 2RW'},{'all shocks'},{'all RWs'},{'1RW, 2S'}],...
         'Color','w','fontsize',20,'HorizontalAlignment','center');
-    text(0,-15/2,'all shocks','fontsize',20,'HorizontalAlignment','center');
+    text(0,-20/2,'all shocks','fontsize',20,'HorizontalAlignment','center');
 
     text(da,dq,klabel,'Color','k','fontsize',20);
     drawnow;
