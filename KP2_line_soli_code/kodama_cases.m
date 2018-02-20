@@ -22,12 +22,20 @@ qvec = linspace(-15,15,1000);
 [AV,QV] = meshgrid(avec,qvec);
 
 fh = figure(1); clf; set(gcf,'Color','White');
-    contourf(AV,QV,((AV<=QV) + 1/2*(AV>=-QV)));
+    contourf(AV,QV,(-(AV<=QV) - 1/2*(AV>=-QV)));
     set(gca,'fontsize',20);
     colormap(gray);
 %     colorbar;
     hold on;
-    text(da,dq,klabel,'Color','white','fontsize',20);
+    title(['RWs, no x-variation']);
+    xlabel(['a_- - a_+']);
+    ylabel(['q_+ - q_-']);
+        text([-15/2,0,0,15/2],[0,-15/2,15/2,0],...
+        [{'1-shock, 2-RW'},{'all shocks'},{'all RWs'},{'1-RW, 2-shock'}],...
+        'Color','w','fontsize',20,'HorizontalAlignment','center');
+    text(0,-15/2,'all shocks','fontsize',20,'HorizontalAlignment','center');
+
+    text(da,dq,klabel,'Color','k','fontsize',20);
     drawnow;
     
 print('kodama_cases','-dpng');
