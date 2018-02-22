@@ -10,10 +10,10 @@ plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
-for Nexp = 9%[6:9]
+for Nexp = [6:9]
 
     %% Numerical Parameters
-    tmax   = 5;      % Solver will run from t=0 to t = tmax
+    tmax   = 10;      % Solver will run from t=0 to t = tmax
     numout = 10*tmax+1; % numout times will be saved (including ICs)
     Lx     = 50;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
@@ -24,9 +24,9 @@ for Nexp = 9%[6:9]
    Nt      = 4;
    dt      = 10^(-Nt);
     %% Initial Condition and large-y approximation in time
-        ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt)];
+        ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_straightsoli'];
         %% One-soliton, corrected for nonzero integral in x
-            sa = 0.5; q = 0.75; x0 = 0;
+            sa = 0.5; q = 0; x0 = 0;
             [ soli ] = one_soli(sa,q,x0,Lx);
 
     %% Generate directory, save parameters
