@@ -8,29 +8,31 @@ periodic = 1;  % setto nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
-
-for Nexp = [6:8]
+check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+dd = struct();
+qms = [-2.02 -1 1 2.02];
+for qm = qms
 
     %% Numerical Parameters
     tmax   = 10;      % Solver will run from t=0 to t = tmax
-    numout = 10*tmax+1; % numout times will be saved (including ICs)
-    Lx     = 50;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
+    numout = tmax+1; % numout times will be saved (including ICs)
+    Lx     = 100;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = 40;%Lx/2;     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 9;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
 
     t      = linspace(0,tmax,numout);
-   Nt      = 4;
+   Nt      = 3;
    dt      = 10^(-Nt);
     %% Initial Condition and large-y approximation in time
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli'];
         %% One-soliton, corrected for nonzero integral in x
-            sa = 0.5; q = @(X,Y,t) -0.75.*(Y<=0) + 0.75*(Y>0); x0 = 0;
+            sa = sqrt(2); q = @(X,Y,t) qm.*(Y<=0) + (-qm)*(Y>0); x0 = 0;
             [ soli ] = one_soli(sa,q,x0,Lx);
-        ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli_',...
-                    '_am_',num2str(sa),'_qm_',num2str(-0.75),...
-                    '_ap_',num2str(sa),'_qp_',num2str(0.75)];
+        ic_type = ['_solikink_',...
+                    '_am_',num2str(sa),'_qm_',num2str(qm),...
+                    '_ap_',num2str(sa),'_qp_',num2str(-qm)];
 
     %% Generate directory, save parameters
     if strcmp(computer,'MACI64')
@@ -63,7 +65,7 @@ for Nexp = [6:8]
             disp('already exists, possibly overwriting data');
         end
     end
-
+    dd.(['qm',num2str(find(qms==qm))]) = data_dir;
     savefile = sprintf('%sparameters.mat',data_dir);
 
     %% If chosen, run the solver using the parameters and conditions above
@@ -97,7 +99,8 @@ for Nexp = [6:8]
     %             colorbar;
     %             legend(ic_type);
                 drawnow; 
-                return;
+%                 return;
+                continue;
             end
         end
 
@@ -119,7 +122,7 @@ for Nexp = [6:8]
 if plot_on
     plot_data_fun_2D(data_dir);
     figure(4);
-    print('validation','-dpng');
-    send_mail_message('mdmaide2','Matlab',['Validation simulation ',data_dir,'done'],'validation.png')
+    print('sim','-dpng');
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
 end
 end

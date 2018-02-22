@@ -10,7 +10,7 @@ verbose = 0; % nonzero means plotting, text output, etc
     soli.a     = @(x,y,t) sa^2 .* ones(size(x));
     soli.ax    = @(x,y,t) zeros(size(x));
     soli.ay    = @(x,y,t) zeros(size(x));
-    soli.q     = @(x,y,t)  qa   .* ones(size(x));
+    soli.q     = @(x,y,t) qa(x,y,t);% qa   .* ones(size(x));
     soli.qx    = @(x,y,t) zeros(size(x));
     soli.qy    = @(x,y,t) zeros(size(x));
     soli.x0    = x0;
@@ -33,9 +33,9 @@ verbose = 0; % nonzero means plotting, text output, etc
                     dytheta);
 % Theta and derivatives
     soli.th = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
-    soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y)+t*q(x,y).^2).*ax(x,y,t)+...
+    soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ax(x,y,t)+...
                         a(x,y,t).*(-2+t*ax(x,y,t)-2*(y-2*t*q(x,y,t)).*qx(x,y,t)));
-    soli.thy = @(x,y,t,a,ay,q,qy,g) ((g*t-x-y*q(x,y)+t*q(x,y).^2).*ay(x,y,t)+...
+    soli.thy = @(x,y,t,a,ay,q,qy,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ay(x,y,t)+...
                         a(x,y,t).*(t.*ay(x,y,t)-2*y.*qy(x,y,t)+...
                         q(x,y,t).*(-2+ 4*t.*qy(x,y,t))));
   

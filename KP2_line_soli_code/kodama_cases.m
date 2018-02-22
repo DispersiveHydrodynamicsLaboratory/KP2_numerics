@@ -18,7 +18,7 @@ qm = Qm*(3/sqrt(2))^(1/3);
 qp = Qp*(3/sqrt(2))^(1/3);
 
 %% Check for which case we're in
-da = am - ap;
+da = sqrt(am) - sqrt(ap);
 dq = qp - qm;
 
 avec = linspace(-15,15,1000);

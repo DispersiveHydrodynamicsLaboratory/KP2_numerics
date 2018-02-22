@@ -14,7 +14,7 @@ end
 % for tnow = 10;% [9 10 11]
     for Ni = 1:length(Nexps)
         %% Numerical Parameters
-        tmax   = 5;      % Solver will run from t=0 to t = tmax
+        tmax   = 10;      % Solver will run from t=0 to t = tmax
         numout = 10*tmax+1; % numout times will be saved (including ICs)
         Lx     = 50;     % Solver will run on x \in [-Lx,Lx]
         Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
@@ -28,10 +28,11 @@ end
         %% Initial Condition and large-y approximation in time
 %             ic_type = ['KP2_validation_Nexp_',num2str(Nexps(Ni))];
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(4)];
-        ic_type = ['KP2_validation_Nexp_',num2str(Nexps(Ni)),'_dt_',num2str(Nt),'_straightsoli'];
+%         ic_type = ['KP2_validation_Nexp_',num2str(Nexps(Ni)),'_dt_',num2str(Nt),'_straightsoli'];
+        ic_type = ['KP2_validation_Nexp_',num2str(Nexps(Ni)),'_dt_',num2str(Nt),'_crookedsoli'];
 
             %% One-soliton, corrected for nonzero integral in x
-                sa = 0.5; q = 0; x0 = 0;
+                sa = 0.5; q = 0.75; x0 = 0;
     %             [ soli ] = one_soli(sa,q,x0,Lx);
 
         %% Generate directory, save parameters
