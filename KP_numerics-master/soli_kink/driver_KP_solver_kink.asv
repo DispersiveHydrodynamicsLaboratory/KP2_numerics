@@ -9,15 +9,16 @@ periodic = 1;  % setto nonzero to run periodic solver (no BCs need)
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
-
-for qm = [-2.02 -1 1 2.02]
+dd = struct();
+qms = -1;%[-2.02 -1 1 2.02];
+for qm = qms
 
     %% Numerical Parameters
-    tmax   = 10;      % Solver will run from t=0 to t = tmax
+    tmax   = 15;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
     Lx     = 100;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = 40;%Lx/2;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 8;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
 
@@ -64,7 +65,7 @@ for qm = [-2.02 -1 1 2.02]
             disp('already exists, possibly overwriting data');
         end
     end
-
+    dd.(['qm',num2str(find(qms==qm))]) = data_dir;
     savefile = sprintf('%sparameters.mat',data_dir);
 
     %% If chosen, run the solver using the parameters and conditions above
@@ -98,7 +99,8 @@ for qm = [-2.02 -1 1 2.02]
     %             colorbar;
     %             legend(ic_type);
                 drawnow; 
-                return;
+%                 return;
+                continue;
             end
         end
 
@@ -120,7 +122,7 @@ for qm = [-2.02 -1 1 2.02]
 if plot_on
     plot_data_fun_2D(data_dir);
     figure(4);
-    print('validation','-dpng');
-    send_mail_message('mdmaide2','Matlab',['Validation simulation ',data_dir,'done'],'validation.png')
+    print('sim','-dpng');
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
 end
 end
