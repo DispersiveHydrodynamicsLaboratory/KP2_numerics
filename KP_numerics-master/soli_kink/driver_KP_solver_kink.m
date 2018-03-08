@@ -14,11 +14,11 @@ qrs = [1/4 1];%[-2.02 -1 1 2.02];
 for qr = qrs
 
     %% Numerical Parameters
-    tmax   = 20;      % Solver will run from t=0 to t = tmax
+    tmax   = 40;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 200;     % Solver will run on x \in [-Lx,Lx]
+    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx*(1/2);     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
 
@@ -37,10 +37,15 @@ for qr = qrs
                     '_ar_',num2str(sa),'_qr_',num2str(qr)];
 
     %% Generate directory, save parameters
+	q = strsplit(pwd,filesep);
+	path(path,[strjoin(q(1:end-1),filesep),filesep,'solver_GPU'])
     if strcmp(computer,'MACI64')
         maindir = '/Volumes/Data Storage/Numerics/KP';
-    else
+    elseif strcmp(computer,'PCWIN64')
         maindir = 'H:';
+    else
+        q = strsplit(pwd,filesep);
+        maindir = strjoin(q(1:end-1),filesep);
     end
         slant = filesep;
 

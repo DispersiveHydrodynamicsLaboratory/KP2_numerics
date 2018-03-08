@@ -6,17 +6,16 @@ rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen dire
                % Useful for debugging
 periodic = 1;  % setto nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
-dd = struct();
-qms = -1;%[-2.02 -1 1 2.02];
-for qm = qms
+
+% for Nexp = [6:8]
 
     %% Numerical Parameters
-    tmax   = 15;      % Solver will run from t=0 to t = tmax
-    numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 100;     % Solver will run on x \in [-Lx,Lx]
+    tmax   = 10;      % Solver will run from t=0 to t = tmax
+    numout = 10*tmax+1; % numout times will be saved (including ICs)
+    Lx     = 25;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
     Nexp   = 8;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
@@ -28,17 +27,19 @@ for qm = qms
     %% Initial Condition and large-y approximation in time
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli'];
         %% One-soliton, corrected for nonzero integral in x
-            sa = sqrt(2); q = @(X,Y,t) qm.*(Y<=0) + (-qm)*(Y>0); x0 = 0;
+            sa = 0.5; q = 0; x0 = 0;
             [ soli ] = one_soli(sa,q,x0,Lx);
-        ic_type = ['_solikink_',...
-                    '_am_',num2str(sa),'_qm_',num2str(qm),...
-                    '_ap_',num2str(sa),'_qp_',num2str(-qm)];
+        ic_type = ['KP2_standard_sa_',num2str(sa),'_q_',num2str(q)];
 
     %% Generate directory, save parameters
     if strcmp(computer,'MACI64')
         maindir = '/Volumes/Data Storage/Numerics/KP';
-    else
+    elseif strcmp(computer,'PCWIN64')
         maindir = 'H:';
+    else
+        q = strsplit(pwd,filesep);
+        maindir = strjoin(q(1:end-1),filesep);
+        path(path,[strjoin(q(1:end-1),filesep),filesep,'solver_GPU'])
     end
         slant = filesep;
 
@@ -65,7 +66,7 @@ for qm = qms
             disp('already exists, possibly overwriting data');
         end
     end
-    dd.(['qm',num2str(find(qms==qm))]) = data_dir;
+
     savefile = sprintf('%sparameters.mat',data_dir);
 
     %% If chosen, run the solver using the parameters and conditions above
@@ -99,8 +100,7 @@ for qm = qms
     %             colorbar;
     %             legend(ic_type);
                 drawnow; 
-%                 return;
-                continue;
+                return;
             end
         end
 
@@ -122,7 +122,7 @@ for qm = qms
 if plot_on
     plot_data_fun_2D(data_dir);
     figure(4);
-    print('sim','-dpng');
-    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
+    print('validation','-dpng');
+    send_mail_message('mdmaide2','Matlab',['Validation simulation ',data_dir,'done'],'validation.png')
 end
-end
+% end
