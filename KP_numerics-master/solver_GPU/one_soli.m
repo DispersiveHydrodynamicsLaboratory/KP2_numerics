@@ -1,4 +1,4 @@
-function [ soli ] = v_soli( sa, qal, qar, x0, Lx )
+function [ soli ] = one_soli( sa, qa, x0, Lx )
 %Creates a structure that's a soliton IC
 % Inputs
 % sa: square root of the amplitude
@@ -10,8 +10,8 @@ verbose = 0; % nonzero means plotting, text output, etc
     soli.a     = @(x,y,t) sa^2 .* ones(size(x));
     soli.ax    = @(x,y,t) zeros(size(x));
     soli.ay    = @(x,y,t) zeros(size(x));
-    soli.q     = @(x,y,t) (qar-qal)/2*tanh(1/5*(x-0)) + (qar+qal)/2;%qa(x,y,t);% qa   .* ones(size(x));
-    soli.qx    = @(x,y,t) (qar-qal)/2*1/20*sech(1/5*(x-0)).^2;
+    soli.q     = @(x,y,t) qa   .* ones(size(x));
+    soli.qx    = @(x,y,t) zeros(size(x));
     soli.qy    = @(x,y,t) zeros(size(x));
     soli.x0    = x0;
     
