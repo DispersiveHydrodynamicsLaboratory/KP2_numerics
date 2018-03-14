@@ -60,10 +60,10 @@ domain = struct;
            ',',num2str(t(end)),']']);
     % Construct initial condition on spatial domain
     u_init = gpuArray(u0.u0(domain.X,domain.Y));
-    u      = u_init; tnow = min(t);
+    u      = gather(u_init); tnow = gather(min(t));
     % Construct initial v, the windowed version of u
     v_init = u_init - (1 - W.o) .* u0.ua(domain.X,domain.Y,0);
-    v      = v_init;
+    v      = gather(v_init);
     % Construct initial Vhat, the fft'd, integrating factored v
     Vhat_init = fft2(v_init);
     Vhat      = Vhat_init;

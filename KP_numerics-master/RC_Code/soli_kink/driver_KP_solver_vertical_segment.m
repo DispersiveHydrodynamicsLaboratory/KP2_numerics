@@ -14,11 +14,13 @@ check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solv
 dd = struct();
 
     %% Numerical Parameters
-    tmax   = 250;      % Solver will run from t=0 to t = tmax
+    tmax   = 110;      % Solver will run from t=0 to t = tmax
+    % MM NOTE: segment edges will move at speed 2*sqrt(a) in the
+    % y-direction; time accordingly
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Lx     = 500;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = Lx*3/5;     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
 
@@ -30,11 +32,16 @@ dd = struct();
         %% One-soliton, corrected for nonzero integral in x
         sau = 1; sad = 0;
         qu = 0; qd = 0;
-            x0 = 0; y0 = -10;
-            [ soli ] = l_soli(sau,sad,qu,qd,x0,y0,Lx);
-        ic_type = ['_solikink_',...
+            x0 = 100; y0 = 0; x0odd = -x0; w = 150;
+            [ soli ] = vertical_segment_GPU(sau,sad,qu,qd,x0,y0,Lx,w);
+            soli.x0odd = x0odd;
+        %% Add odd reflection
+        soli.u0 = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0odd,y,0);
+        ic_type = ['_solisegment_',...
                     '_au_',num2str(sau),'_qu_',num2str(qu),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qd)];
+                    '_ad_',num2str(sad),'_qd_',num2str(qd),...
+                    '_x0_',num2str(x0) ,'_y0_',num2str(y0),...
+                    '_w_',num2str(w)];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);

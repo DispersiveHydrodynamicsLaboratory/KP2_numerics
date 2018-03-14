@@ -69,11 +69,19 @@ function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, iphi, domain );
     Ezero = exp( t      .*iphi);  Ezeroi = exp(- t      .*iphi);
     Ehalf = exp((t+dt/2).*iphi);  Ehalfi = exp(-(t+dt/2).*iphi);
     Eone  = exp((t+dt)  .*iphi);  Eonei  = exp(-(t+dt  ).*iphi);
-    uahalf = uasy(X,Y,t+dt/2); 
-    uaxhalf = dxuasy(X,Y,t+dt/2);
-    uayhalf = dyuasy(X,Y,t+dt/2);
+    % Function evals of asymptotic solution
+        % t = 0
+        uazero = uasy(X,Y,t); 
+        uaxzero = dxuasy(X,Y,t);
+        uayzero = dyuasy(X,Y,t);
+        uahalf = uasy(X,Y,t+dt/2); 
+        uaxhalf = dxuasy(X,Y,t+dt/2);
+        uayhalf = dyuasy(X,Y,t+dt/2);
+        uaone = uasy(X,Y,t+dt); 
+        uaxone = dxuasy(X,Y,t+dt);
+        uayone = dyuasy(X,Y,t+dt);
     Va  = G( Ezero, Ezeroi.* Vhat          ,...
-             uasy(X,Y,t)     , dxuasy(X,Y,t)     , dyuasy(X,Y,t)     ,...
+             uazero, uaxzero, uayzero     ,...
              W, domain );
     Vb  = G( Ehalf, Ehalfi.*(Vhat+dt/2*Va) ,...
              uahalf, uaxhalf, uayhalf,...
@@ -82,7 +90,7 @@ function Vhatnew = RK4( t, dt, Vhat, uasy, dxuasy, dyuasy, W, iphi, domain );
              uahalf, uaxhalf, uayhalf,...
              W, domain );     % Runge-Kutta
     Vd  = G( Eone, Eonei  .*(Vhat+dt*Vc) ,...
-             uasy(X,Y,t+dt)  , dxuasy(X,Y,t+dt)  , dyuasy(X,Y,t+dt)  ,...
+             uaone  , uaxone  , uayone  ,...
              W, domain );
     Vhatnew = Vhat + dt*(Va + 2*(Vb+Vc) + Vd)/6;
 %     plot_interim_contours;

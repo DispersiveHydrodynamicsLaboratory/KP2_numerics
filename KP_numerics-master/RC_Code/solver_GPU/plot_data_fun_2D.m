@@ -60,9 +60,9 @@ function plot_data_fun_2D(loaddir,varargin)
 %         umax = max(f(x(xp)));
 %         umin = min(f(x(xp)));
 %     else
-        load(strcat(loaddir,num2str(0,'%05d'),'.mat'),'u_init');
-        umax = max(u_init(:)); %max(f(z(zp)));
-        umin = min(u_init(:)); %min(f(z(zp)));
+        load(strcat(loaddir,num2str(0,'%05d'),'.mat'),'u');
+        umax = max(u(:)); %max(f(z(zp)));
+        umin = min(u(:)); %min(f(z(zp)));
 %     end
     for ii=1:max(nplts-1,1)
         load(strcat(loaddir,num2str(toutind(ii),'%05d'),'.mat'),'u','tnow','inc');
@@ -83,7 +83,7 @@ function plot_data_fun_2D(loaddir,varargin)
     else
         h(1)=subplot(nplts,1,1);
     end
-        contourf(x(xp),y(yp),u_init(yp,xp),100,'edgecolor','none');
+        contourf(x(xp),y(yp),u(yp,xp),100,'edgecolor','none');
                     colorbar; 
     set(gca,'fontsize',fontsize,'fontname','times');
     ylabel('$u$','interpreter','latex');
