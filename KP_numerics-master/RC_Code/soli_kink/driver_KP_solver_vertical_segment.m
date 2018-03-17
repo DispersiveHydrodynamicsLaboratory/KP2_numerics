@@ -9,7 +9,7 @@ periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 

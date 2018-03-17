@@ -16,11 +16,11 @@ sads = [1 4 4  4  1];
 qads = [1 1 0 -1 -1];
 for ii = 1:5
     %% Numerical Parameters
-    tmax   = 250;      % Solver will run from t=0 to t = tmax
+    tmax   = 150;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
+    Lx     = 500;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Nexp   = 8;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
 
@@ -30,13 +30,54 @@ for ii = 1:5
     %% Initial Condition and large-y approximation in time
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli'];
         %% One-soliton, corrected for nonzero integral in x
-        sau = 1; sad = 0;
-        qu = 0; qd = 0;
-            x0 = 0; y0 = -10;
-            [ soli ] = l_soli(sau,sad,qu,qd,x0,y0,Lx);
-        ic_type = ['_solikink_',...
-                    '_au_',num2str(sau),'_qu_',num2str(qu),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qd)];
+        sau = 1; sad = sads(ii);
+        qau = 0; qad = qads(ii);
+            x0 = 150; y0 = 0; x0odd = -150;
+            tanw = 1/10;
+%% Define Soliton parameters and derivatives in x and y
+    soli.tw    = tanw;
+    soli.a     = @(x,y,t) (sad-sau)/2*tanh(tanw*(y-0)) + (sad+sau)/2;%qa(x,y,t);% qa   .* ones(size(x));
+    soli.ax    = @(x,y,t) zeros(size(x));
+    soli.ay    = @(x,y,t) (sad-sau)/2*tanw*sech(tanw*(y-0)).^2;
+    soli.q     = @(x,y,t) (qad-qau)/2*tanh(tanw*(y-0)) + (qad+qau)/2;%qa(x,y,t);% qa   .* ones(size(x));
+    soli.qx    = @(x,y,t) zeros(size(x));
+    soli.qy    = @(x,y,t) (qad-qau)/2*tanw*sech(tanw*(y-0)).^2;
+    soli.x0    = x0;
+    soli.y0    = y0;
+    soli.G = 0;
+%% Define Soliton function, derivatives
+    soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT
+    soli.dx = @(theta,dxtheta,x,y,t,a,ax) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
+               (ax(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
+                    dxtheta);
+    soli.dy = @(theta,dytheta,x,y,t,a,q,ay) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
+               (ay(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
+                    dytheta);
+% Theta and derivatives
+    soli.th = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
+    soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ax(x,y,t)+...
+                        a(x,y,t).*(-2+t*ax(x,y,t)-2*(y-2*t*q(x,y,t)).*qx(x,y,t)));
+    soli.thy = @(x,y,t,a,ay,q,qy,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ay(x,y,t)+...
+                        a(x,y,t).*(t.*ay(x,y,t)-2*y.*qy(x,y,t)+...
+                        q(x,y,t).*(-2+ 4*t.*qy(x,y,t))));
+  
+% Asymptotic soliton approximation
+    soli.ua  = @(x,y,t)  soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+                                x-soli.x0,y-soli.y0,t,soli.a,soli.G);
+    soli.uax  = @(x,y,t) soli.dx(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+                            soli.thx(x-soli.x0,y-soli.y0,t,soli.a,soli.ax,soli.q,soli.qx,soli.G),...
+                             x-soli.x0,y-soli.y0,t,soli.a,soli.ax);
+    soli.uay  = @(x,y,t) soli.dy(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+                                 soli.thy(x-soli.x0,y-soli.y0,t,soli.a,soli.ay,soli.q,soli.qy,soli.G),...
+                                  x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
+%% Initial condition, with odd reflection
+	soli.x0odd = x0odd;
+	soli.u0 = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0odd,y,0);
+
+    ic_type = ['_solikink_',...
+                    '_au_',num2str(sau),'_qu_',num2str(qau),...
+                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
+                    '_x0_',num2str(x0 ),'_y0_',num2str(y0)];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);
@@ -126,8 +167,8 @@ for ii = 1:5
             if check_IC
     %             colorbar;
     %             legend(ic_type);
-                drawnow; 
-                return;
+                drawnow;  pause(0.5);
+                continue;
             end
         end
 

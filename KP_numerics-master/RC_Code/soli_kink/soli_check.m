@@ -1,6 +1,6 @@
 %% Figure out how to make a tanh that goes from ql to qr over a width w
 ql = 1;
-qr = 1/2;
+qr = 0;
 w = 5;
 
 a = (qr-ql)/2;
