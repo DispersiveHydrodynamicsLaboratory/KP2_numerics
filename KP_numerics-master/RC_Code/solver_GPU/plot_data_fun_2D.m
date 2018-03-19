@@ -77,19 +77,22 @@ function plot_data_fun_2D(loaddir,varargin)
     figure(4)
     clf()
     % Plot initial condition
-    load(strcat(loaddir,num2str(0,'%05d'),'.mat'),'u_init');
+    load(strcat(loaddir,num2str(0,'%05d'),'.mat'),'u');
+        cred = 0;
+           cv = [linspace(umin,cred,25) linspace(cred*1.01,umax,25)];
+            % Edit colormap for better visibility
+                cmap = cmap_edit(cred,umin,umax,cmap);
     if nplts==6
         h(1) = subplot(2,3,1);
     else
         h(1)=subplot(nplts,1,1);
     end
-        contourf(x(xp),y(yp),u(yp,xp),100,'edgecolor','none');
+        contourf(x(xp),y(yp),u(yp,xp),cv,'edgecolor','none');
                     colorbar; 
     set(gca,'fontsize',fontsize,'fontname','times');
     ylabel('$u$','interpreter','latex');
     axis([x(xmini),x(xmaxi),y(ymini),y(ymaxi)]);
-    colormap(cmap);
-    caxis([umin umax])
+    colormap(cmap); colorbar;
     title({['$t = 0$']},'interpreter','latex');
     for ii=1:max(nplts-1,1)
         load(strcat(loaddir,num2str(toutind(ii),'%05d'),'.mat'),'u','tnow','inc');
