@@ -1,6 +1,6 @@
 %% Driver file for KP2 numerical solver
 %% Domain, ICs, etc go here
-save_on  = 1;  % Set to nonzero if you want to run the solver, set
+save_on  = 0;  % Set to nonzero if you want to run the solver, set
                % to 0 if you want to plot
 rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen directory
                % Useful for debugging
@@ -9,19 +9,19 @@ periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 sads   = [1 2 2  2  1];
 qads   = [1 1 0 -1 -1];
 x0s    = [100 100 100 -100 -100];
-for ii = 1:5
+for ii = 2%1:5
     %% Numerical Parameters
     tmax   = 2;      % Solver will run from t=0 to t = tmax
     numout = 4*(tmax+1); % numout times will be saved (including ICs)
     Lx     = 300;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Nexp   = 8;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^(Nexp);    % Number of Fourier modes in y-direction
 
@@ -39,15 +39,14 @@ for ii = 1:5
     y     = (2*Ly/Ny)*(-Ny/2:Ny/2-1)';
     x     = (2*Lx/Nx)*(-Nx/2:Nx/2-1)';
     [X,Y] = meshgrid(x,y);
-    au         = sau^2;
-    ad         = sad^2;
+    s
     soli.Y     = gpuArray(Y);
     soli.tw    = gpuArray(tanw);
     soli.w     = gpuArray(w);
 	soli.ybox  = 1/2.*(-tanh(soli.tw*(soli.Y-soli.w/2))+tanh(soli.tw*(soli.Y+soli.w/2)));
-    soli.a     = @(x,y,t) gpuArray(( (ad-au)./2.*tanh(soli.tw.*(y)) + (ad+au)/2 )) ;
+    soli.a     = @(x,y,t) gpuArray(( (sad^2-sau^2)./2.*tanh(soli.tw.*(y)) + (sad^2+sau^2)/2 )) ;
     soli.ax    = @(x,y,t) gpuArray(zeros(size(x)));
-    soli.ay    = @(x,y,t) gpuArray((ad-au)/2*soli.tw*sech(soli.tw*(y)).^2);
+    soli.ay    = @(x,y,t) gpuArray((sad^2-sau^2)/2*soli.tw*sech(soli.tw*(y)).^2);
     soli.q     = @(x,y,t) gpuArray((qad-qau)/2*tanh(soli.tw*(y)) + (qad+qau)/2);
     soli.qx    = @(x,y,t) gpuArray(zeros(size(x)));
     soli.qy    = @(x,y,t) gpuArray((qad-qau)/2*soli.tw*sech(soli.tw*(y)).^2);
@@ -84,8 +83,8 @@ for ii = 1:5
 	soli.u0 = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0odd,y,0).*soli.ybox;
 
     ic_type = ['_solikink_',...
-                    '_sau_',num2str(sau),'_qu_',num2str(qau),...
-                    '_sad_',num2str(sad),'_qd_',num2str(qad),...
+                    '_au_',num2str(sau),'_qu_',num2str(qau),...
+                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
                     '_x0_',num2str(x0 ),'_y0_',num2str(y0)];
 
     %% Generate directory, save parameters

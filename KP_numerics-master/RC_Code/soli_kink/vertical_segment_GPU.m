@@ -5,13 +5,14 @@ function [ soli ] = vertical_segment_GPU( sau, sad, qau, qad, x0, y0, Lx, w )
 % qa: slope of the angle of propagation
 
 verbose = 0; % nonzero means plotting, text output, etc
-
+ad = sad^2;
+au = sau^2;
 %% Define Soliton parameters and derivatives in x and y
     soli.tw    = 1/10; %tanh width factor
     soli.w     = w;
-    soli.a     = @(x,y,t) gpuArray((sad-sau)/2*tanh(soli.tw*(y-soli.w/2)) - (sad-sau)/2*tanh(soli.tw*(y+soli.w/2)));
+    soli.a     = @(x,y,t) gpuArray((ad-au)/2*tanh(soli.tw*(y-soli.w/2)) - (ad-au)/2*tanh(soli.tw*(y+soli.w/2)));
     soli.ax    = @(x,y,t) gpuArray(zeros(size(x)));
-    soli.ay    = @(x,y,t) gpuArray((sad-sau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (sad-sau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2);
+    soli.ay    = @(x,y,t) gpuArray((ad-au)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (ad-au)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2);
     soli.q     = @(x,y,t) gpuArray((qad-qau)/2*tanh(soli.tw*(y-soli.w/2)) - (qad-qau)/2*tanh(soli.tw*(y+soli.w/2)));
     soli.qx    = @(x,y,t) gpuArray(zeros(size(x)));
     soli.qy    = @(x,y,t) gpuArray((qad-qau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (qad-qau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2);

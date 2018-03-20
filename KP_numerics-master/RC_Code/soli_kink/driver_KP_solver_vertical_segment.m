@@ -9,20 +9,20 @@ periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 
     %% Numerical Parameters
-    tmax   = 110;      % Solver will run from t=0 to t = tmax
+    tmax   = 2;      % Solver will run from t=0 to t = tmax
     % MM NOTE: segment edges will move at speed 2*sqrt(a) in the
     % y-direction; time accordingly
-    numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 500;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx*3/5;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 10;
+    numout = 4*tmax+1; % numout times will be saved (including ICs)
+    Lx     = 300;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = Lx;     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 8;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
-    Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
+    Ny     = 2^(Nexp);    % Number of Fourier modes in y-direction
 
     t      = linspace(0,tmax,numout);
    Nt      = 3;
@@ -30,7 +30,7 @@ dd = struct();
     %% Initial Condition and large-y approximation in time
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli'];
         %% One-soliton, corrected for nonzero integral in x
-        sau = 1; sad = 0;
+        sau = 2; sad = 0;
         qu = 0; qd = 0;
             x0 = 100; y0 = 0; x0odd = -x0; w = 150;
             [ soli ] = vertical_segment_GPU(sau,sad,qu,qd,x0,y0,Lx,w);
