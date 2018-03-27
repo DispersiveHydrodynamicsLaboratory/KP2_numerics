@@ -17,7 +17,7 @@ qads   = 0;
 x0s    = 100;
 for ii = 1
     %% Numerical Parameters
-    tmax   = 50;      % Solver will run from t=0 to t = tmax
+    tmax   = 10;      % Solver will run from t=0 to t = tmax
     numout = (tmax+1); % numout times will be saved (including ICs)
     Lx     = 300;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx;     % Solver will run on y \in [-Ly,Ly]
@@ -208,14 +208,31 @@ for ii = 1
         try
         % Run KdV to determine boundary solver
         % First, check to see if run of same amplitude exists
-          KdV_dir = [maindir,'KP',slant,'KdV',slant];
-           hi_dir = [KdV_dir,num2str(hi,'%05.2f'),'.mat'];
-           lo_dir = [KdV_dir,num2str(lo,'%05.2f'),'.mat']
+          KdV_dir = [maindir,slant,'KP',slant,'KdV',slant];
+          if ~exist(KdV_dir,'dir')
+              mkdir(KdV_dir);
+          end
+           hi_dir = [KdV_dir,num2str(hi,'%05.2f'),slant];%'.mat'];
+           lo_dir = [KdV_dir,num2str(lo,'%05.2f'),slant];%'.mat']
           if exist(hi_dir)~=2
-            KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ubhi );
+                mkdir(hi_dir,'s');
+                try
+                    save([hi_dir,'parameters.mat'],'t','Lx','Nx','soli');
+                    KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ubhi, hi_dir );
+                catch ehi
+                    disp(ehi.message);
+                    rmdir(hi_dir,'s');
+                end
           end
           if exist(lo_dir)~=2
-            KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ublo );
+                mkdir(lo_dir)
+                try
+                    save([lo_dir,'parameters.mat'],'t','Lx','Nx','soli');
+                    KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ubhi, lo_dir );
+                catch elo
+                    disp(elo.message);
+                    rmdir(lo_dir);
+                end
           end
         % Run timestepper
             KP_solver_periodic( t, Lx, Nx, Nt,...

@@ -1,7 +1,7 @@
-function KdV_solver_periodic(  t, Lx, Nx, Nt, u0 );
+function KdV_solver_periodic(  t, Lx, Nx, Nt, u0, data_dir );
 % Solves: KP eq. u_t + uu_x + u_xxx = 0
 % on [-Lx,Lx] by FFT in space with
-% Pseudospectral and 2nd-order centered differences in space
+% Pseudospectral in space
 % integrating factor v = exp[+i(k^3*epsilon^2-lambda*l^2/k)t]*u_hat
 % and RK4 in time
 %
@@ -27,28 +27,28 @@ domain = struct;
     domain.x = gpuArray((2*Lx/Nx)*(-Nx/2:Nx/2-1)');
    domain.dx = gpuArray((2*Lx/Nx));
    domain.Lx = gpuArray(Lx);
-    domain.k = gpuArray((pi/Lx)*[0:Nx/2-1 0 -Nx/2+1:-1]');
+   domain.kx = gpuArray((pi/Lx)*[0:Nx/2-1 0 -Nx/2+1:-1]');
     
 %% Save variables, prepping to call the solver
     % Output what we are about to do
-    disp(['Solving KP eqtn.']);
+    disp(['Solving KdV eqtn.']);
     disp([' Time interval:  [', num2str(t(1)),...
            ',',num2str(t(end)),']']);
     % Construct initial condition on spatial domain
-    u_init = gpuArray(u0(domain.X,domain.Y));
+    u_init = gpuArray(u0(domain.x));
     u      = u_init; tnow = min(t);
     
     % Save initial condition (inc = 0)
 	save(strcat(data_dir,num2str(inc,'%05d')),...
-                'u','u_init','v','v_init','Vhat',...
-                'Vhat_init','inc','tnow');
+                'u','u_init',...
+                'inc','tnow');
 	inc = inc + 1;
     disp(['Time = ',num2str(tout(inc)),', inc = ',int2str(inc),...
           '/',int2str(length(tout))]);
 	start = tic;
 
 %% Call the solver
-    myRK4_KDV( u_init, dt, domain)
+    myRK4_KdV( u_init, dt, domain)
  
 %% Finish and clean up
     finish = toc(start);
