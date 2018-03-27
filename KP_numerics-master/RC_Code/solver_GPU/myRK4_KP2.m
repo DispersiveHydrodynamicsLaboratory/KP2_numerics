@@ -110,6 +110,4 @@ function GV = G( Et, vhat, uasy, dxuasy, dyuasy, W, domain )
 % 	GV  = Et.*(1i*domain.KX./2.*v2hat );
 % 	Gv0 = ( -(1i*domain.KX*pi)./(2*domain.Lx).*v2hat );
     GV(domain.KX==0) = 0;%Gv0(domain.KX==0);
-    disp('');
-    
-    
+%    disp('');

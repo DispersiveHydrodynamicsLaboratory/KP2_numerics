@@ -6,19 +6,21 @@ rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen dire
                % Useful for debugging
 gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
 periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
-               % set to 0 to run solver with time-dependent BCs
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
-               % after (possibly) calling the solver
-check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
+               % set to 0 to run solver with time-dependent BCs                
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
+               % after (possibly) calling the solver          
+check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 
     %% Numerical Parameters
-    tmax   = 250;      % Solver will run from t=0 to t = tmax
+    tmax   = 110;      % Solver will run from t=0 to t = tmax
+    % MM NOTE: segment edges will move at speed 2*sqrt(a) in the
+    % y-direction; time accordingly
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx*(1/2);     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Lx     = 500;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = Lx*3/5;     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
 
@@ -74,11 +76,11 @@ dd = struct();
     % Change Initial condition to odd reflection
         soli.x0_odd = x0_odd;
         soli.u0    = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0_odd,y,0);
-        
-        ic_type = ['_solikink_',...
-                    '_au_',num2str(sau),'_qu_',num2str(qau),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
-                    '_x0_',num2str(x0) ,'_y0_',num2str(y0)];
+        ic_type = ['_solisegment_',...
+                    '_au_',num2str(sau),'_qu_',num2str(qu),...
+                    '_ad_',num2str(sad),'_qd_',num2str(qd),...
+                    '_x0_',num2str(x0) ,'_y0_',num2str(y0),...
+                    '_w_',num2str(w)];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);
@@ -152,16 +154,16 @@ dd = struct();
             fontsize = 12;
             figure(1); clf;
             subplot(2,2,1)
-                contourf(XPLOT,YPLOT,u_init,100,'edgecolor','none'); xlabel('x'); ylabel('y');
+                contourf(XPLOT,YPLOT,u_init,100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
                 title('Initial Conditions');
             subplot(2,2,2)
-                contourf(XPLOT,YPLOT,soli.ua(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
+                contourf(XPLOT,YPLOT,soli.ua(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
                 title('Asymptotic u');
             subplot(2,2,3)
-                contourf(XPLOT,YPLOT,soli.uax(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
+                contourf(XPLOT,YPLOT,soli.uax(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
                 title('Asymptotic u, x-deriv');
             subplot(2,2,4)
-                contourf(XPLOT,YPLOT,soli.uay(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
+                contourf(XPLOT,YPLOT,soli.uay(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
                 title('Asymptotic u, y-deriv');
             set(gca,'fontsize',fontsize,'fontname','times');
             pause(0.25);
@@ -182,17 +184,25 @@ dd = struct();
             KP_solver_periodic( t, Lx, Nx, Nt,...
                                    Ly, Ny,...
                                    soli,...
-                                   data_dir );
+                                   data_dir );     
     else
         load(savefile);
     end
 
 
 if plot_on
-    plot_data_fun_2D(data_dir);
-    figure(4);
-    print('sim','-dpng');
-    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
+	try
+	    plot_data_fun_2D(data_dir);
+	    figure(4);
+	    print('sim','-dpng');
+	    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
+	catch
+		disp(['Finished with ',data_dir]);
+	end
 else
-    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
+	try
+    		send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
+	catch
+		disp(['Finished with ',data_dir]);
+	end
 end

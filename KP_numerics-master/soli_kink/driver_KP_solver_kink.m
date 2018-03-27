@@ -4,21 +4,23 @@ save_on  = 1;  % Set to nonzero if you want to run the solver, set
                % to 0 if you want to plot
 rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen directory
                % Useful for debugging
-periodic = 1;  % setto nonzero to run periodic solver (no BCs need)
+gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
+periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
+
 dd = struct();
-qms = [-2.02 -1 1 2.02];
-for qm = qms
+qrs = [1/4 1];%[-2.02 -1 1 2.02];
+for qr = qrs
 
     %% Numerical Parameters
-    tmax   = 10;      % Solver will run from t=0 to t = tmax
+    tmax   = 40;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 100;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = 40;%Lx/2;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = Lx*(1/2);     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
 
@@ -28,17 +30,41 @@ for qm = qms
     %% Initial Condition and large-y approximation in time
 %         ic_type = ['KP2_validation_Nexp_',num2str(Nexp),'_dt_',num2str(Nt),'_twosoli'];
         %% One-soliton, corrected for nonzero integral in x
-            sa = sqrt(2); q = @(X,Y,t) qm.*(Y<=0) + (-qm)*(Y>0); x0 = 0;
-            [ soli ] = one_soli(sa,q,x0,Lx);
+        ql = 1/2;
+            sar = 1; %q = @(X,Y,t) (qr-ql)/2*tanh(10*(X-0)) + (qr+ql)/2; 
+            x0 = 0; y0 = -30;
+            [ soli ] = v_soli(sa,ql,qr,x0,y0,Lx);
         ic_type = ['_solikink_',...
-                    '_am_',num2str(sa),'_qm_',num2str(qm),...
-                    '_ap_',num2str(sa),'_qp_',num2str(-qm)];
+                    '_al_',num2str(sa),'_ql_',num2str(ql),...
+                    '_ar_',num2str(sa),'_qr_',num2str(qr)];
 
     %% Generate directory, save parameters
+	q = strsplit(pwd,filesep);
+    %% use CPU or GPU code, depending
+    cpath = [strjoin(q(1:end-1),filesep),filesep,'solver'];
+    gpath = [strjoin(q(1:end-1),filesep),filesep,'solver_GPU'];
+    if gpu_on
+        addpath(gpath)
+        if exist(cpath,'dir')==7
+            rmpath(cpath)
+        end
+    else
+        addpath(cpath)
+        if exist(gpath,'dir')==7
+            rmpath(gpath)
+        end
+    end
     if strcmp(computer,'MACI64')
         maindir = '/Volumes/Data Storage/Numerics/KP';
-    else
+        if ~exist(maindir,'dir')
+            q = strsplit(pwd,filesep);
+            maindir = strjoin(q(1:end-1),filesep);
+        end
+    elseif strcmp(computer,'PCWIN64')
         maindir = 'H:';
+    else
+        q = strsplit(pwd,filesep);
+        maindir = strjoin(q(1:end-1),filesep);
     end
         slant = filesep;
 
@@ -65,7 +91,7 @@ for qm = qms
             disp('already exists, possibly overwriting data');
         end
     end
-    dd.(['qm',num2str(find(qms==qm))]) = data_dir;
+    dd.(['qm',num2str(find(qrs==ql))]) = data_dir;
     savefile = sprintf('%sparameters.mat',data_dir);
 
     %% If chosen, run the solver using the parameters and conditions above
