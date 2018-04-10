@@ -1,5 +1,6 @@
 %% Driver file for KP2 numerical solver
 %% Domain, ICs, etc go here
+rip;
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                % to 0 if you want to plot
 rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen directory
@@ -7,16 +8,16 @@ rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen dire
 gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
 periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver
-check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 sads   = 2;
 qads   = 0;
 x0s    = 100;
 for ii = 1
-    %% Numerical Parameters
+  %% Numerical Parameters
     tmax   = 10;      % Solver will run from t=0 to t = tmax
     numout = (tmax+1); % numout times will be saved (including ICs)
     Lx     = 300;     % Solver will run on x \in [-Lx,Lx]
@@ -28,13 +29,14 @@ for ii = 1
     t      = linspace(0,tmax,numout);
    Nt      = 3;
    dt      = 10^(-Nt);
+   
   %% Initial Condition and large-y approximation in time
-  %% One-soliton
+   % One-soliton
     sau = 1; sad = sads(ii);
     qau = 0; qad = qads(ii);
     x0 = x0s(ii); y0 = 0; x0odd = -x0s(ii);
     w = Ly*2/3; tanw = 1/20;
-  %% Define Soliton parameters and derivatives in x and y
+   % Define Soliton parameters and derivatives in x and y
       y     = (2*Ly/Ny)*(-Ny/2:Ny/2-1)';
       x     = (2*Lx/Nx)*(-Nx/2:Nx/2-1)';
       [X,Y] = meshgrid(x,y);
@@ -52,7 +54,7 @@ for ii = 1
       soli.x0    = gpuArray(x0);
       soli.y0    = gpuArray(y0);
       soli.G     = gpuArray(0);
-  %% Define Soliton function, derivatives
+   % Define Soliton function, derivatives
       soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT
       soli.dx = @(theta,dxtheta,x,y,t,a,ax) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
                  (ax(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
@@ -60,7 +62,7 @@ for ii = 1
       soli.dy = @(theta,dytheta,x,y,t,a,q,ay) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
                  (ay(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
                       dytheta);
-  %% Theta and derivatives
+   % Theta and derivatives
       soli.th = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
       soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ax(x,y,t)+...
                           a(x,y,t).*(-2+t*ax(x,y,t)-2*(y-2*t*q(x,y,t)).*qx(x,y,t)));
@@ -68,25 +70,31 @@ for ii = 1
                           a(x,y,t).*(t.*ay(x,y,t)-2*y.*qy(x,y,t)+...
                           q(x,y,t).*(-2+ 4*t.*qy(x,y,t))));
     
-  %% Asymptotic soliton approximation
-      soli.ua  = @(x,y,t)  soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+   % Asymptotic soliton approximation
+      soli.uasy.u.exa  = @(x,y,t)  soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
                                   x-soli.x0,y-soli.y0,t,soli.a,soli.G);
-      soli.uax  = @(x,y,t) soli.dx(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+      soli.uasy.ux.exa  = @(x,y,t) soli.dx(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
                               soli.thx(x-soli.x0,y-soli.y0,t,soli.a,soli.ax,soli.q,soli.qx,soli.G),...
                                x-soli.x0,y-soli.y0,t,soli.a,soli.ax);
-      soli.uay  = @(x,y,t) soli.dy(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
+      soli.uasy.uy.exa  = @(x,y,t) soli.dy(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
                                    soli.thy(x-soli.x0,y-soli.y0,t,soli.a,soli.ay,soli.q,soli.qy,soli.G),...
                                     x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
-  %% Correction to zero mean; upper and lower bounds for KdV solver
+   % Correction to zero mean; upper and lower bounds for KdV solver
+        % Calculate dip amplitude for all y
+        soli.dipvec = zeros(1,Ny);
+        soli.y  = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
+        for Nyi = 1:length(soli.y)
+            soli.dipvec(Nyi) = integral(@(x)gather(soli.uasy.u.exa(x,soli.y(Nyi),0)),-Lx,+Lx);
+        end
     	soli.x0odd = x0odd;
-    	soli.ub    = @(x,y)    -1/2*integral(@(x)soli.ua(x,y,0),-Lx,+Lx).*sech(x-soli.x0odd).^2;
-    	hi = integral(@(x)soli.ua(x,-Ly,0),-Lx,+Lx);
-    	lo = integral(@(x)soli.ua(x,+Ly,0),-Lx,+Lx);
-    	soli.ubhi  = @(x) -hi/2*sech(x).^2;
-    	soli.ublo  = @(x) -lo/2*sech(x).^2;
+    	soli.dip    = @(x,y)    -1/2* interp1(soli.y,soli.dipvec,y).*sech(x-soli.x0odd).^2;
+    	soli.hi = integral(@(x)soli.uasy.u.exa(x,-Ly,0),-Lx,+Lx);
+    	soli.lo = integral(@(x)soli.uasy.u.exa(x,+Ly,0),-Lx,+Lx);
+    	soli.ubhi  = @(x) -soli.hi/2*sech(x).^2;
+    	soli.ublo  = @(x) -soli.lo/2*sech(x).^2;
   	
-    %% Initial condition, with correction to zero mean
-  	soli.u0 = @(x,y)    soli.ua(x,y,0) + soli.ub(x,y) ;
+    % Initial condition, with correction to zero mean
+        soli.u0 = @(x,y)    soli.uasy.u.exa(x,y,0) + soli.dip(x,y) ;
   
       ic_type = ['_solikink_',...
                       '_sau_',num2str(sau),'_qu_',num2str(qau),...
@@ -95,12 +103,12 @@ for ii = 1
 
     %% Generate directory, save parameters
 	  q = strsplit(pwd,filesep);
-    %% use CPU or GPU code, depending
-    cpath = [strjoin(q(1:end-1),filesep),filesep,'solver'];
-    gpath = [strjoin(q(1:end-1),filesep),filesep,'solver_GPU'];
-    pathCell = regexp(path, pathsep, 'split');
+     % use CPU or GPU code, depending
+        cpath = [strjoin(q(1:end-1),filesep),filesep,'solver'];
+        gpath = [strjoin(q(1:end-1),filesep),filesep,'solver_GPU'];
+        pathCell = regexp(path, pathsep, 'split');
     
-    if gpu_on
+        if gpu_on
         addpath(gpath)
         if any(strcmpi(cpath, regexp(path, pathsep, 'split')))
             rmpath(cpath)
@@ -110,35 +118,35 @@ for ii = 1
         if any(strcmpi(gpath, regexp(path, pathsep, 'split')))
             rmpath(gpath)
         end
-    end
-    
-    %% Choose directory data will be saved to, depending on computer
-    if strcmp(computer,'MACI64')
-        maindir = '/Volumes/Data Storage/Numerics/KP';
-        if ~exist(maindir,'dir')
-            q = strsplit(pwd,filesep);
-            maindir = strjoin(q(1:end-1),filesep);
         end
-    elseif strcmp(computer,'PCWIN64')
-        maindir = 'H:';
-    else
-        q = strsplit(pwd,filesep);
-        maindir = '/rc_scratch/mima6446';%strjoin(q(1:end-1),filesep);
-    end
+    
+     % Choose directory data will be saved to, depending on computer
+        if strcmp(computer,'MACI64')
+            maindir = '/Volumes/Data Storage/Numerics/KP';
+            if ~exist(maindir,'dir')
+                q = strsplit(pwd,filesep);
+                maindir = strjoin(q(1:end-1),filesep);
+            end
+        elseif strcmp(computer,'PCWIN64')
+            maindir = 'H:';
+        else
+            q = strsplit(pwd,filesep);
+            maindir = '/rc_scratch/mima6446';%strjoin(q(1:end-1),filesep);
+        end
     
         slant = filesep;
         
-    %% Create directory run will be saved to
-    data_dir = [maindir,slant,'Numerics',slant,'KP',slant,...
-                '_tmax_',   num2str(round(tmax)),...
-                '_Lx_',     num2str(Lx),...
-                '_Nx_',     num2str(Nx),...
-                '_Ly_',     num2str(Ly),...
-                '_Ny_',     num2str(Ny),...
-                '_bndry_condns_periodic',...
-                '_init_condns_',ic_type,...
-                slant];
-	dd.(['r',num2str(ii)])=data_dir;
+     % Create directory run will be saved to
+        data_dir = [maindir,slant,'Numerics',slant,'KP',slant,...
+                    '_tmax_',   num2str(round(tmax)),...
+                    '_Lx_',     num2str(Lx),...
+                    '_Nx_',     num2str(Nx),...
+                    '_Ly_',     num2str(Ly),...
+                    '_Ny_',     num2str(Ny),...
+                    '_bndry_condns_periodic',...
+                    '_init_condns_',ic_type,...
+                    slant];
+        dd.(['r',num2str(ii)])=data_dir;
     % Create the data directory if necessary
     if ~exist(data_dir,'dir')
         mkdir(data_dir);
@@ -158,14 +166,14 @@ for ii = 1
     %% If chosen, run the solver using the parameters and conditions above
     if save_on
         if plot_on
-            %% Load initial data
+            % Load initial data
               xplot  = (2*Lx/Nx)*[-Nx/2:Nx/2-1];
               yplot  = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
               [XPLOT,YPLOT] = meshgrid(xplot,yplot);
               tplot  = linspace(0,tmax,floor(tmax*10));
               u_init = soli.u0(XPLOT,YPLOT);
 
-            %% Plot initial conditions and boundary conditions
+            % Plot initial conditions and boundary conditions
             fontsize = 12;
             figure(1); clf;
             subplot(2,2,1)
@@ -200,50 +208,25 @@ for ii = 1
                 continue;
             end
         end
-        % Save parameters
+        %% Save parameters
             save(savefile,'t','Nx','Lx',...
                               'Ny','Ly',...
                               'soli','Nt',...
                               'periodic');
-        try
-        % Run KdV to determine boundary solver
-        % First, check to see if run of same amplitude exists
-          KdV_dir = [maindir,slant,'KP',slant,'KdV',slant];
-          if ~exist(KdV_dir,'dir')
-              mkdir(KdV_dir);
-          end
-           hi_dir = [KdV_dir,num2str(hi,'%05.2f'),slant];%'.mat'];
-           lo_dir = [KdV_dir,num2str(lo,'%05.2f'),slant];%'.mat']
-          if exist(hi_dir)~=2
-                mkdir(hi_dir,'s');
-                try
-                    save([hi_dir,'parameters.mat'],'t','Lx','Nx','soli');
-                    KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ubhi, hi_dir );
-                catch ehi
-                    disp(ehi.message);
-                    rmdir(hi_dir,'s');
-                end
-          end
-          if exist(lo_dir)~=2
-                mkdir(lo_dir)
-                try
-                    save([lo_dir,'parameters.mat'],'t','Lx','Nx','soli');
-                    KdV_solver_periodic(  t, Lx, Nx, Nt, soli.ubhi, lo_dir );
-                catch elo
-                    disp(elo.message);
-                    rmdir(lo_dir);
-                end
-          end
-        % Run timestepper
+%         try
+        %% Generate zero-mean BCs from KdV
+        [u0] = KdV_BC_generator( soli, t, Lx, Nx, Nt, maindir );
+        
+        %% Run timestepper
             KP_solver_periodic( t, Lx, Nx, Nt,...
                                    Ly, Ny,...
                                    soli,...
                                    data_dir );
-        catch e
-            %send_mail_message('mdmaide2','Matlab',['Simulation failed with error ',e.message])
-            disp(['Simulation failed with error ',e.message]);
-	          continue;
-        end
+%         catch e
+%             %send_mail_message('mdmaide2','Matlab',['Simulation failed with error ',e.message])
+%             disp(['KP Simulation failed with error ',e.message]);
+% 	          continue;
+%         end
     else
         load(savefile);
     end

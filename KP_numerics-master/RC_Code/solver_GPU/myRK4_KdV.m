@@ -19,9 +19,17 @@ function myRK4_KdV( u0, dt, domain)
     global tout inc dir
     uold = u0; % fft'd, unshifted, decayed IC
 
+    umat = gpuArray(zeros(length(u0),length(tout)));
+    umat(:,1) = u0;
     % Subsequent time steps
     for jj = 1:length(tout)-1
-        disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout)-1)]);
+        if length(tout)>1000
+            if mod(jj,100)==0
+                disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout)-1)]);
+            end
+        else
+            disp(['Calculating ',num2str(jj),' out of ',num2str(length(tout)-1)]);
+        end     
             tmid = linspace(tout(jj),tout(jj+1),ceil((tout(jj+1)-tout(jj))/dt)+1);
             for ii = 2:length(tmid)
                 unew = RK4(tmid(ii-1), tmid(ii)-tmid(ii-1), uold, ...
@@ -38,11 +46,13 @@ function myRK4_KdV( u0, dt, domain)
             end
         disp('');
         %% Save data
-        tnow = gather(tout(jj+1));
-        u = gather(unew);
-          save(strcat(dir,num2str(inc,'%05d')),'u','tnow','inc');
-          inc = inc +1;
+        umat(:,jj+1) = unew;
+%         tnow = gather(tout(jj+1));
+%         u = gather(unew);
+%           save(strcat(dir,num2str(inc,'%05d')),'u','tnow','inc');
+%           inc = inc +1;
     end
+    save(strcat(dir,'matrix'),'umat','tout','inc');
 
 
 % KP2 RK4 function
