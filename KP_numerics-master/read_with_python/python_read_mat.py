@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def main():
     main_dir = '/home/magbags/Downloads/Research/Numerics/KP2/';
-    data_dir = main_dir + 'KP3/';
+    data_dir = main_dir + '_tmax_250_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solikink__au_1_qu_0_ad_0_qd_0_x0_200_y0_0/';
     print('Directory '+main_dir+'exists?');
     fnames = sorted(glob.glob(data_dir+"0*.mat"));
     # remove IC
@@ -33,8 +33,11 @@ def main():
     y = (2*Ly/Ny)*np.linspace(Ny*-1/2,Ny*1/2-1,Ny);
     [X,Y] = np.meshgrid(x,y);
     
-    for n in fnames: #range(0,np.size(param['t'])):
-        d = sio.loadmat(n);
+    # Timesteps to call
+    nvec = np.linspace(0,len(fnames)-1,round(len(fnames)/50)+1)
+    
+    for n in nvec: #range(0,np.size(param['t'])):
+        d = sio.loadmat(fnames[int(n)]);
         print(d['tnow']);
         # pdb.set_trace()
         # Plot
