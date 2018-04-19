@@ -12,12 +12,11 @@ plot_on  = 0;  % Set to 1 if you want to plot just before and just
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
-for dipw = [1 5 10 20]
     %% Numerical Parameters
-    tmax   = 10;      % Solver will run from t=0 to t = tmax
+    tmax   = 150;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
     Lx     = 800;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = 375;     % Solver will run on y \in [-Ly,Ly]
+    Ly     = 400;     % Solver will run on y \in [-Ly,Ly]
     Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^9;    % Number of Fourier modes in y-direction
@@ -28,7 +27,8 @@ for dipw = [1 5 10 20]
     %% Initial Condition and large-y approximation in time
         sau = 1; sad = 0;
         qau = 0; qad = 0;
-        w = 100; % width of soliton line segment
+        w = 150; % width of soliton line segment
+        tw = 20; % gradual decrease to 0
             x0 = 200; y0 = 0; x0_odd = -200;
         if ~gpu_on
             [ soli ] = vertical_segment(sau,sad,qu,qd,x0,y0,Lx,w);
@@ -36,12 +36,13 @@ for dipw = [1 5 10 20]
           %% MM: Attempt to cut down fcn calls by directly implementing here
           %% Define Soliton parameters and derivatives in x and y
             soli.w     = gpuArray(w);
-            soli.a     = @(x,y,t) gpuArray((sad-sau)/2*tanh(1/5*(y-soli.w/2))  - (sad-sau)/2*tanh(1/5*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
+            soli.tw    = gpuArray(tw)
+            soli.a     = @(x,y,t) gpuArray((sad-sau)/2*tanh(1/soli.tw*(y-soli.w/2))  - (sad-sau)/2*tanh(1/soli.tw*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
             soli.ax    = @(x,y,t) gpuArray(zeros(size(x)));
-            soli.ay    = @(x,y,t) gpuArray((sad-sau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (sad-sau)/2*1/5*sech(1/5*(y+soli.w/2)).^2);
-            soli.q     = @(x,y,t) gpuArray((qad-qau)/2*tanh(1/5*(y-soli.w/2))  - (qad-qau)/2*tanh(1/5*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
+            soli.ay    = @(x,y,t) gpuArray((sad-sau)/2*1/soli.tw*sech(1/soli.tw*(y-soli.w/2)).^2 - (sad-sau)/2*1/soli.tw*sech(1/soli.tw*(y+soli.w/2)).^2);
+            soli.q     = @(x,y,t) gpuArray((qad-qau)/2*tanh(1/soli.tw*(y-soli.w/2))  - (qad-qau)/2*tanh(1/soli.tw*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
             soli.qx    = @(x,y,t) gpuArray(zeros(size(x)));
-            soli.qy    = @(x,y,t) gpuArray((qad-qau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (qad-qau)/2*1/5*sech(1/5*(y+soli.w/2)).^2);
+            soli.qy    = @(x,y,t) gpuArray((qad-qau)/2*1/soli.tw*sech(1/soli.tw*(y-soli.w/2)).^2 - (qad-qau)/2*1/soli.tw*sech(1/soli.tw*(y+soli.w/2)).^2);
             soli.x0    = gpuArray(x0);
             soli.y0    = gpuArray(y0);
             soli.G = 0;
@@ -86,11 +87,7 @@ for dipw = [1 5 10 20]
         soli.x0_odd = x0_odd;
         soli.u0    = @(x,y)    soli.ua(x,y,0) + soli.dip(x,y);
         
-        ic_type = ['_solikink_',...
-                    '_au_',num2str(sau),'_qu_',num2str(qau),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
-                    '_x0_',num2str(x0) ,'_y0_',num2str(y0),...
-                    '_sechtest_w_',num2str(dipw)];
+        ic_type = ['_soliseg_check_tw_',num2str(tw)];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);
@@ -208,5 +205,3 @@ if plot_on
 else
     %send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
 end
-end
-
