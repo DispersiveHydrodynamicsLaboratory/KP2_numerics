@@ -1,5 +1,6 @@
 data_dir = 'H:\Numerics\KP\_tmax_125_Lx_300_Nx_512_Ly_200_Ny_256_bndry_condns_periodic_init_condns__solisegment__au_1_qu_0_ad_0_qd_0_x0_100_y0_0_w_100\';
 num_on = 0;
+save_on = 0;
 %% ICs and Whitham theory predictions of evolution
     sam = 1; qm = 0;   x0 = 100; w = 100;
     sau = 0  ; qu =  sam;
@@ -92,12 +93,16 @@ end
         [f2,ax2]=plot_nice_contour(data_dir,ti-1,2);
     else
         [f2,ax2] = plot_nice_contour([pwd,filesep],75,2);
+            ti = 1;
+        t = 75;
     end
-    set(ax2,'XLim',[-Lx Lx],'YLim',[-Ly Ly]);
+    set(ax2,'XLim',[0 Lx/2],'YLim',[-Ly Ly],'CLim',[0 0.85]);
         set(f2,'Color','w'); set(gca,'fontsize',20);
-        
-    ti = 1;
-    t = 75;
+        title('');
+        if save_on
+            print('seg_soli_numerics.png','-dpng');
+        end
+
     figure(3); clf; set(gcf,'Color','w');
     a1 = @(x,y,t) 9/64 * ( 2- y/t).^2 .*( (-2/3*t) <= y ).*( y < ( 2*t) ) + ...
                  1                    .*( (-2/3*t) > y );
@@ -108,11 +113,17 @@ end
     
     a = @(x,y,t) a1(x,y-w/2,t).*(y>=0) + a2(x,y+w/2,t).*(y<0);
     q = @(x,y,t) q1(x,y-w/2,t).*(y>=0) + q2(x,y+w/2,t).*(y<0);
-    qy = q1((X-x0),(Y-w/2),t(ti)).*(Y-w/2) + q2((X-x0),(Y+w/2),t).*(Y<0).*(Y+w/2);
+    qy = q1((X-x0),(Y-w/2),t(ti)).*(Y-w/2) + q2((X-x0),(Y+w/2),t(ti)).*(Y<0).*(Y+w/2);
     
     U1 = a((X-x0),Y,t(ti)).*sech( sqrt(a((X-x0),Y,t(ti))/12).*...
           ((X-x0) + qy - (a((X-x0),Y,t(ti))/3 + q((X-x0),Y,t(ti)).^2)*t(ti))).^2;
     contourf(X,Y,U1,50,'edgecolor','none'); 
-    set(gca,'CLim',[-0.25 0.85],'fontsize',20);
-    title(['Whitham theory, t=',num2str(t(ti))]);
+    set(gca,'CLim',get(ax2,'CLim'),'fontsize',20);
+        set(gca,'XLim',get(ax2,'XLim'),'YLim',get(ax2,'YLim'));
+        set(gcf,'Color','w'); set(gca,'fontsize',20);
+        xlabel('x'); ylabel('y');
+%     title(['Whitham theory, t=',num2str(t(ti))]);
     colormap(load('CoolWarmFloat257.csv')); colorbar;
+    if save_on
+            print('seg_soli_whitham.png','-dpng');
+    end

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #SBATCH --nodes=1 
-#SBATCH --time=00:10:00
+#SBATCH --time=59:59:59
 #SBATCH --partition=blanca-dhl
 #SBATCH --qos=blanca-dhl
-#SBATCH --output=matlab_outs/matlab_job_%j.out
+#SBATCH --output=/projects/mima6446/KP2/soli_kink/matlab_outs/matlab_job_%j.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=michelle.maiden@colorado.edu
 

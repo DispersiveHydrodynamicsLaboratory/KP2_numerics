@@ -81,13 +81,13 @@ for ii = 1
                                     x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
    % Correction to zero mean; upper and lower bounds for KdV solver
         % Calculate dip amplitude for all y
-        dipvec = zeros(1,Ny);
+        soli.dipvec = zeros(1,Ny);
         soli.y  = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
-        for Nyi = -Ny/2:Ny/2-1
-            dipvec(Nyi) = integral(@(x)soli.uasy.u.exa(x,(2*Ly/Ny)*Nyi,0),-Lx,+Lx);
+        for Nyi = 1:length(soli.y)
+            soli.dipvec(Nyi) = integral(@(x)gather(soli.uasy.u.exa(x,soli.y(Nyi),0)),-Lx,+Lx);
         end
     	soli.x0odd = x0odd;
-    	soli.dip    = @(x,y)    -1/2* interp1( .*sech(x-soli.x0odd).^2;
+    	soli.dip    = @(x,y)    -1/2* interp1(soli.y,soli.dipvec,y).*sech(x-soli.x0odd).^2;
     	soli.hi = integral(@(x)soli.uasy.u.exa(x,-Ly,0),-Lx,+Lx);
     	soli.lo = integral(@(x)soli.uasy.u.exa(x,+Ly,0),-Lx,+Lx);
     	soli.ubhi  = @(x) -soli.hi/2*sech(x).^2;

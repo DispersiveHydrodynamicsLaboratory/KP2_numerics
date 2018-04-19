@@ -6,23 +6,22 @@ rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen dire
                % Useful for debugging
 gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
 periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
-               % set to 0 to run solver with time-dependent BCs    
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
+               % set to 0 to run solver with time-dependent BCs                
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver          
-check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
-sads = [1 4 4  4  1];
-qads = [1 1 0 -1 -1];
-for ii = 1:5
+
     %% Numerical Parameters
-    tmax   = 250;      % Solver will run from t=0 to t = tmax
+    tmax   = 40;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx/2;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Lx     = 100;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = Lx*(1/2);     % Solver will run on y \in [-Ly,Ly]
+    Nexp   = 6;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
-    Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
+    Ny     = 2^Nexp/2;    % Number of Fourier modes in y-direction
+
     t      = linspace(0,tmax,numout);
    Nt      = 3;
    dt      = 10^(-Nt);
@@ -31,7 +30,7 @@ for ii = 1:5
         %% One-soliton, corrected for nonzero integral in x
         sau = 1; sad = 0;
         qu = 0; qd = 0;
-            x0 = 0; y0 = -10;
+            x0 = 0; y0 = 0;
             [ soli ] = l_soli(sau,sad,qu,qd,x0,y0,Lx);
         ic_type = ['_solikink_',...
                     '_au_',num2str(sau),'_qu_',num2str(qu),...
@@ -145,16 +144,11 @@ for ii = 1:5
     end
 
 
-    if plot_on
-        try
-            plot_data_fun_2D(data_dir);
-            figure(4);
-            print('sim','-dpng');
-            send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
-        end
-    else
-        try
-            send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
-        end
-    end
+if plot_on
+    plot_data_fun_2D(data_dir);
+    figure(4);
+    print('sim','-dpng');
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
+else
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
 end
