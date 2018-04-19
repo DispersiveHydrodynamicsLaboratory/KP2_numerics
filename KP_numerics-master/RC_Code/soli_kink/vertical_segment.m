@@ -7,16 +7,25 @@ function [ soli ] = vertical_segment( sau, sad, qau, qad, x0, y0, Lx, w )
 verbose = 0; % nonzero means plotting, text output, etc
 
 %% Define Soliton parameters and derivatives in x and y
-    soli.tw    = 1/10; %tanh width factor
     soli.w     = w;
-    soli.a     = @(x,y,t) (sad-sau)/2*tanh(soli.tw*(y-soli.w/2)) - (sad-sau)/2*tanh(soli.tw*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
+    soli.a     = @(x,y,t) (sad-sau)/2*tanh(1/5*(y-soli.w/2))  - (sad-sau)/2*tanh(1/5*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
     soli.ax    = @(x,y,t) zeros(size(x));
-    soli.ay    = @(x,y,t) (sad-sau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (sad-sau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2;
-    soli.q     = @(x,y,t) (qad-qau)/2*tanh(soli.tw*(y-soli.w/2)) - (qad-qau)/2*tanh(soli.tw*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
+    soli.ay    = @(x,y,t) (sad-sau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (sad-sau)/2*1/5*sech(1/5*(y+soli.w/2)).^2;
+    soli.q     = @(x,y,t) (qad-qau)/2*tanh(1/5*(y-soli.w/2))  - (qad-qau)/2*tanh(1/5*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
     soli.qx    = @(x,y,t) zeros(size(x));
-    soli.qy    = @(x,y,t) (qad-qau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (qad-qau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2;
+    soli.qy    = @(x,y,t) (qad-qau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (qad-qau)/2*1/5*sech(1/5*(y+soli.w/2)).^2;
     soli.x0    = x0;
     soli.y0    = y0;
+    
+    
+% %% Galilean boost to correct for nonzero mean
+%     u  = @(theta,x,y,t,a) a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2;
+%     th = @(x,y,t,a,q) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2) * t);
+%     I = integral(@(x) u(th(x,0,0,soli.a,soli.q),x,0,0,soli.a), -Lx, Lx);
+%     soli.G = -I/(2*Lx);
+%     if verbose
+%         disp(['Integral is: ',num2str(I)]);
+%     end
 soli.G = 0;
 %% Define Soliton function, derivatives
     soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT

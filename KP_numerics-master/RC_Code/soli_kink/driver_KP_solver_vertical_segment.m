@@ -6,23 +6,21 @@ rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen dire
                % Useful for debugging
 gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
 periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
-               % set to 0 to run solver with time-dependent BCs                
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
-               % after (possibly) calling the solver          
-check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+               % set to 0 to run solver with time-dependent BCs
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
+               % after (possibly) calling the solver
+check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
 
     %% Numerical Parameters
-    tmax   = 110;      % Solver will run from t=0 to t = tmax
-    % MM NOTE: segment edges will move at speed 2*sqrt(a) in the
-    % y-direction; time accordingly
+    tmax   = 150;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 500;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = Lx*3/5;     % Solver will run on y \in [-Ly,Ly]
+    Lx     = 800;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = 375;     % Solver will run on y \in [-Ly,Ly]
     Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
-    Ny     = 2^(Nexp-1);    % Number of Fourier modes in y-direction
+    Ny     = 9;    % Number of Fourier modes in y-direction
 
     t      = linspace(0,tmax,numout);
    Nt      = 3;
@@ -31,7 +29,7 @@ dd = struct();
         sau = 1; sad = 0;
         qau = 0; qad = 0;
         w = 100; % width of soliton line segment
-            x0 = -50; y0 = 0; x0_odd = 100;
+            x0 = 200; y0 = 0; x0_odd = -200;
         if ~gpu_on
             [ soli ] = vertical_segment(sau,sad,qu,qd,x0,y0,Lx,w);
         else
@@ -73,14 +71,25 @@ dd = struct();
                                        soli.thy(x-soli.x0,y-soli.y0,t,soli.a,soli.ay,soli.q,soli.qy,soli.G),...
                                         x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
         end
-    % Change Initial condition to odd reflection
+    % Change Initial condition to include zero mean correction
+        
+        soli.y  = linspace(-Ly,Ly-(2*Ly/Ny),Ny);
+        soli.dipvec = zeros(size(soli.y));
+        for Nyi = 1:length(soli.y)
+            soli.dipvec(Nyi) = integral(@(x)gather(soli.ua(x,soli.y(Nyi),0)),-Lx,+Lx);
+        end
+    	soli.x0odd = x0_odd;
+        soli.dipw  = 10;
+    	soli.dip    = @(x,y)    -1/(pi*soli.dipw)*...
+                                interp1(soli.y,soli.dipvec,y).*...
+                                sech((x-soli.x0odd)/soli.dipw);
         soli.x0_odd = x0_odd;
-        soli.u0    = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0_odd,y,0);
-        ic_type = ['_solisegment_',...
-                    '_au_',num2str(sau),'_qu_',num2str(qu),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qd),...
-                    '_x0_',num2str(x0) ,'_y0_',num2str(y0),...
-                    '_w_',num2str(w)];
+        soli.u0    = @(x,y)    soli.ua(x,y,0) + soli.dip(x,y);
+        
+        ic_type = ['_solikink_',...
+                    '_au_',num2str(sau),'_qu_',num2str(qau),...
+                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
+                    '_x0_',num2str(x0) ,'_y0_',num2str(y0)];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);
@@ -154,16 +163,16 @@ dd = struct();
             fontsize = 12;
             figure(1); clf;
             subplot(2,2,1)
-                contourf(XPLOT,YPLOT,u_init,100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
+                contourf(XPLOT,YPLOT,u_init,100,'edgecolor','none'); xlabel('x'); ylabel('y');
                 title('Initial Conditions');
             subplot(2,2,2)
-                contourf(XPLOT,YPLOT,soli.ua(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
+                contourf(XPLOT,YPLOT,soli.ua(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
                 title('Asymptotic u');
             subplot(2,2,3)
-                contourf(XPLOT,YPLOT,soli.uax(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
+                contourf(XPLOT,YPLOT,soli.uax(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
                 title('Asymptotic u, x-deriv');
             subplot(2,2,4)
-                contourf(XPLOT,YPLOT,soli.uay(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y'); 
+                contourf(XPLOT,YPLOT,soli.uay(XPLOT,YPLOT,0),100,'edgecolor','none'); xlabel('x'); ylabel('y');
                 title('Asymptotic u, y-deriv');
             set(gca,'fontsize',fontsize,'fontname','times');
             pause(0.25);
@@ -184,25 +193,17 @@ dd = struct();
             KP_solver_periodic( t, Lx, Nx, Nt,...
                                    Ly, Ny,...
                                    soli,...
-                                   data_dir );     
+                                   data_dir );
     else
         load(savefile);
     end
 
 
 if plot_on
-	try
-	    plot_data_fun_2D(data_dir);
-	    figure(4);
-	    print('sim','-dpng');
-	    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
-	catch
-		disp(['Finished with ',data_dir]);
-	end
+    plot_data_fun_2D(data_dir);
+    figure(4);
+    print('sim','-dpng');
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
 else
-	try
-    		send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
-	catch
-		disp(['Finished with ',data_dir]);
-	end
+    send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
 end

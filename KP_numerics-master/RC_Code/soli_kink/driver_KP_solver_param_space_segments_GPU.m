@@ -15,13 +15,13 @@ dd = struct();
 sads   = [1 2 2  2  1];
 qads   = [1 1 0 -1 -1];
 x0s    = [100 100 100 -100 -100];
-for ii = 3:5
+for ii = 1:5
     %% Numerical Parameters
     tmax   = 110;      % Solver will run from t=0 to t = tmax
-    numout = (tmax+1); % numout times will be saved (including ICs)
-    Lx     = 300;     % Solver will run on x \in [-Lx,Lx]
+    numout = (tmax/10+1); % numout times will be saved (including ICs)
+    Lx     = 600;     % Solver will run on x \in [-Lx,Lx]
     Ly     = Lx;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 9;
+    Nexp   = 10;
     Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
     Ny     = 2^(Nexp);    % Number of Fourier modes in y-direction
 
@@ -81,7 +81,7 @@ for ii = 3:5
                                   x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
 %% Initial condition, with odd reflection
 	soli.x0odd = x0odd;
-	soli.u0 = @(x,y)    soli.ua(x,y,0) - soli.ua(x+soli.x0-soli.x0odd,y,0).*soli.ybox;
+	soli.u0 = @(x,y)    soli.ua(x,y,0);% - soli.ua(x+soli.x0-soli.x0odd,y,0).*soli.ybox;
 
     ic_type = ['_solikink_',...
                     '_sau_',num2str(sau),'_qu_',num2str(qau),...

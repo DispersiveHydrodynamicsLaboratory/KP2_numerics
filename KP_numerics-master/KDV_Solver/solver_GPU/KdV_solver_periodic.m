@@ -17,7 +17,7 @@ function KdV_solver_periodic(  t, Lx, Nx, Nt, u0, data_dir );
 
 %% Set up temporal vector, increment counter, data directory
 global tout inc dir
-    tout = gpuArray(t);
+    tout = gpuArray([t(1):(10^(-Nt)):t(end)]);
     inc  = 0;
     dir  = data_dir;
     dt   = gpuArray(10^-Nt);

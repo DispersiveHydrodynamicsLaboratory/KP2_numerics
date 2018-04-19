@@ -1,0 +1,38 @@
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Solving KP eqtn.
+ Time interval:  [0,250]
+{Undefined function or variable 'qad'.
+
+Error in
+driver_KP_solver_vertical_segment>@(x,y,t)gpuArray((qad-qau)/2*tanh(1/5*(y-soli.w/2))-(qad-qau)/2*tanh(1/5*(y+soli.w/2)))
+
+Error in
+driver_KP_solver_vertical_segment>@(x,y,t,a,q,g)(x+q(x,y,t).*y-(a(x,y,t)/3+q(x,y,t).^2+g)*t)
+
+Error in
+driver_KP_solver_vertical_segment>@(x,y,t)soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),x-soli.x0,y-soli.y0,t,soli.a,soli.G)
+
+Error in
+driver_KP_solver_vertical_segment>@(x,y)soli.ua(x,y,0)-soli.ua(x+soli.x0-soli.x0_odd,y,0)
+
+Error in KP_solver_periodic (line 62)
+    u_init = gpuArray(u0.u0(domain.X,domain.Y));
+
+Error in driver_KP_solver_vertical_segment (line 182)
+            KP_solver_periodic( t, Lx, Nx, Nt,...
+} 
+>> 

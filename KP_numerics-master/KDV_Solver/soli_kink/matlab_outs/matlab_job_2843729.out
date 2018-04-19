@@ -1,0 +1,194 @@
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+Solving KP eqtn.
+ Time interval:  [0,110]
+Time = 0, inc = 1/111
+Calculating 1 out of 110
+Calculating 2 out of 110
+Calculating 3 out of 110
+Calculating 4 out of 110
+Calculating 5 out of 110
+Calculating 6 out of 110
+Calculating 7 out of 110
+Calculating 8 out of 110
+Calculating 9 out of 110
+Calculating 10 out of 110
+Calculating 11 out of 110
+Calculating 12 out of 110
+Calculating 13 out of 110
+Calculating 14 out of 110
+Calculating 15 out of 110
+Calculating 16 out of 110
+Calculating 17 out of 110
+Calculating 18 out of 110
+Calculating 19 out of 110
+Calculating 20 out of 110
+Calculating 21 out of 110
+Calculating 22 out of 110
+Calculating 23 out of 110
+Calculating 24 out of 110
+Calculating 25 out of 110
+Calculating 26 out of 110
+Calculating 27 out of 110
+Calculating 28 out of 110
+Calculating 29 out of 110
+Calculating 30 out of 110
+Calculating 31 out of 110
+Calculating 32 out of 110
+Calculating 33 out of 110
+Calculating 34 out of 110
+Calculating 35 out of 110
+Calculating 36 out of 110
+Calculating 37 out of 110
+Calculating 38 out of 110
+Calculating 39 out of 110
+Calculating 40 out of 110
+Calculating 41 out of 110
+Calculating 42 out of 110
+Calculating 43 out of 110
+Calculating 44 out of 110
+Calculating 45 out of 110
+Calculating 46 out of 110
+Calculating 47 out of 110
+Calculating 48 out of 110
+Calculating 49 out of 110
+Calculating 50 out of 110
+Calculating 51 out of 110
+Calculating 52 out of 110
+Calculating 53 out of 110
+Calculating 54 out of 110
+Calculating 55 out of 110
+Calculating 56 out of 110
+Calculating 57 out of 110
+Calculating 58 out of 110
+Calculating 59 out of 110
+Calculating 60 out of 110
+Calculating 61 out of 110
+Calculating 62 out of 110
+Calculating 63 out of 110
+Calculating 64 out of 110
+Calculating 65 out of 110
+Calculating 66 out of 110
+Calculating 67 out of 110
+Calculating 68 out of 110
+Calculating 69 out of 110
+Calculating 70 out of 110
+Calculating 71 out of 110
+Calculating 72 out of 110
+Calculating 73 out of 110
+Calculating 74 out of 110
+Calculating 75 out of 110
+Calculating 76 out of 110
+Calculating 77 out of 110
+Calculating 78 out of 110
+Calculating 79 out of 110
+Calculating 80 out of 110
+Calculating 81 out of 110
+Calculating 82 out of 110
+Calculating 83 out of 110
+Calculating 84 out of 110
+Calculating 85 out of 110
+Calculating 86 out of 110
+Calculating 87 out of 110
+Calculating 88 out of 110
+Calculating 89 out of 110
+Calculating 90 out of 110
+Calculating 91 out of 110
+Calculating 92 out of 110
+Calculating 93 out of 110
+Calculating 94 out of 110
+Calculating 95 out of 110
+Calculating 96 out of 110
+Calculating 97 out of 110
+Calculating 98 out of 110
+Calculating 99 out of 110
+Calculating 100 out of 110
+Calculating 101 out of 110
+Calculating 102 out of 110
+Calculating 103 out of 110
+Calculating 104 out of 110
+Calculating 105 out of 110
+Calculating 106 out of 110
+Calculating 107 out of 110
+Calculating 108 out of 110
+Calculating 109 out of 110
+Calculating 110 out of 110
+Calculation Finished
+Computation time = 0d 1h 7m 16.7674s
+Solving KP eqtn.
+ Time interval:  [0,110]
+Time = 0, inc = 1/111
+Calculating 1 out of 110
+Calculating 2 out of 110
+Calculating 3 out of 110
+Calculating 4 out of 110
+Calculating 5 out of 110
+Calculating 6 out of 110
+Calculating 7 out of 110
+Calculating 8 out of 110
+Calculating 9 out of 110
+Calculating 10 out of 110
+Calculating 11 out of 110
+Calculating 12 out of 110
+Calculating 13 out of 110
+Calculating 14 out of 110
+Calculating 15 out of 110
+Calculating 16 out of 110
+Calculating 17 out of 110
+Calculating 18 out of 110
+Calculating 19 out of 110
+Calculating 20 out of 110
+Calculating 21 out of 110
+Calculating 22 out of 110
+Calculating 23 out of 110
+Calculating 24 out of 110
+Calculating 25 out of 110
+Calculating 26 out of 110
+Calculating 27 out of 110
+Calculating 28 out of 110
+Calculating 29 out of 110
+Calculating 30 out of 110
+Calculating 31 out of 110
+Calculating 32 out of 110
+Calculating 33 out of 110
+Calculating 34 out of 110
+Calculating 35 out of 110
+Calculating 36 out of 110
+Calculating 37 out of 110
+Calculating 38 out of 110
+Calculating 39 out of 110
+Calculating 40 out of 110
+Calculating 41 out of 110
+Calculating 42 out of 110
+Calculating 43 out of 110
+Calculating 44 out of 110
+Calculating 45 out of 110
+Calculating 46 out of 110
+Calculating 47 out of 110
+Calculating 48 out of 110
+Calculating 49 out of 110
+Calculating 50 out of 110
+Calculating 51 out of 110
+Calculating 52 out of 110
+{Undefined function or variable 'send_mail_message'.
+
+Error in driver_KP_solver_param_space_segments_GPU (line 207)
+            send_mail_message('mdmaide2','Matlab',['Simulation failed with
+            error ',e.message])
+} 
+>> 

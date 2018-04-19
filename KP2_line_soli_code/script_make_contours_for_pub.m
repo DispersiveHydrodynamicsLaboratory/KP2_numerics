@@ -4,7 +4,7 @@ if strcmp(computer,'MACI64')
     updir = '/Users/dhl/Documents/MATLAB/KP_Whitham/';
     slant = '/';
 else
-    updir = 'D:\';
+    updir = '';
     slant = '\';
 end
 
