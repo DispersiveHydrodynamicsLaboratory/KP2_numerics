@@ -1,8 +1,6 @@
 function [ soli ] = vertical_segment(am,ad,au,...
                                      qm,qu,qd,...
-                                     x0,y0,w,Lx,Ly,Nx,Ny,tstart)
-	soli.x  = linspace(-Lx,Lx-(2*Lx/Nx),Nx);
-	soli.y  = linspace(-Ly,Ly-(2*Ly/Ny),Ny);
+                                     x0,y0,w,Lx,Ly,)
 	%% CURRENTLY ASSUMES am=1
     if am~=1
         disp('Setting middle state to 1...');
@@ -35,11 +33,7 @@ function [ soli ] = vertical_segment(am,ad,au,...
                 %theta_x =  sqrt(a/12)
                 %theta_y =  sqrt(a/12)*q
                 %theta_t = -sqrt(a/12)*(a/3+q^2+g)
-                soli.th.intx = zeros(Nx,Ny);
-            for Nxi = 1:length(soli.x)
-                soli.th.intx
-            end
-              
+          soli.th.intx = @(x,y,t) integral(
           soli.ath = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
           soli.thx = @(x,y,t) (zeros(size(x)));
           soli.thy = @(x,y,t) (zeros(size(x)));

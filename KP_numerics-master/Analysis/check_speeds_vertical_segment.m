@@ -10,9 +10,10 @@ save_on = 0;
     lo_back_V = 2*qm + 2/3*sam;
     lo_lead_V = 2*qd + 2/3*sad;
     
-    Lx = 300; Nx = 2^8;
-    Ly = 200; Ny = Nx;
-    %% x and y vectors
+%     Lx = 300; Nx = 2^8;
+%     Ly = 200; Ny = Nx;
+load(['parameters.mat'],'Lx','Ly','Nx','Ny');
+%% x and y vectors
     x = (2*Lx/Nx)*[-Nx/2:Nx/2-1];
     y = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
     [X,Y] = meshgrid(x,y);
@@ -94,9 +95,9 @@ end
     else
         [f2,ax2] = plot_nice_contour([pwd,filesep],75,2);
             ti = 1;
-        t = 75;
+        t = 50;
     end
-    set(ax2,'XLim',[0 Lx/2],'YLim',[-Ly Ly],'CLim',[0 0.85]);
+    set(ax2,'XLim',[0 150],'YLim',[-Ly Ly],'CLim',[0 0.85]);
         set(f2,'Color','w'); set(gca,'fontsize',20);
         title('');
         if save_on
