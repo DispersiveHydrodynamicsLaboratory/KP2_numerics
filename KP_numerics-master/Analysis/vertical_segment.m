@@ -56,9 +56,4 @@ function [ soli ] = vertical_segment(am,ad,au,...
      % Initial soliton approximation
         soli.us = @(x,y) soli.u(soli.th.f(x-soli.x0,y-soli.y0),x-soli.x0,y-soli.y0,tstart,soli.a,soli.G);
         
-     % Assume can get away with asymptotic approximation of 0
-     soli.ua = @(x,y,t) gpuArray( zeros(size(x)) );
-     soli.uax = @(x,y,t) gpuArray( zeros(size(x)) );
-     soli.uay = @(x,y,t) gpuArray( zeros(size(x)) );
-     
         end

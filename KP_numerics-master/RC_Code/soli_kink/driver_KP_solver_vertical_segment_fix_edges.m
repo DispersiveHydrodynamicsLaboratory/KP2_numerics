@@ -12,85 +12,37 @@ plot_on  = 0;  % Set to 1 if you want to plot just before and just
 check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
-for dipw = [1 5 10 20]
     %% Numerical Parameters
-    tmax   = 10;      % Solver will run from t=0 to t = tmax
+    tmax   = 1;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
-    Lx     = 800;     % Solver will run on x \in [-Lx,Lx]
-    Ly     = 375;     % Solver will run on y \in [-Ly,Ly]
-    Nexp   = 10;
-    Nx     = 2^Nexp;    % Number of Fourier modes in x-direction
-    Ny     = 2^9;    % Number of Fourier modes in y-direction
+    Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
+    Ly     = 200;     % Solver will run on y \in [-Ly,Ly]
+    Nxexp  = 8; %9
+    Nyexp  = 7; %8
+    Nx     = 2^Nxexp;    % Number of Fourier modes in x-direction
+    Ny     = 2^Nyexp;    % Number of Fourier modes in y-direction
 
     t      = linspace(0,tmax,numout);
    Nt      = 3;
    dt      = 10^(-Nt);
     %% Initial Condition and large-y approximation in time
-        sau = 1; sad = 0;
-        qau = 0; qad = 0;
+        am = 1; ad =  0; au =  0;
+        qm = 0; qd = -1; qu = +1;
         w = 100; % width of soliton line segment
+        tstart = 10; % time at which original profile is generated
             x0 = 200; y0 = 0; x0_odd = -200;
-        if ~gpu_on
-            [ soli ] = vertical_segment(sau,sad,qu,qd,x0,y0,Lx,w);
-        else
-          %% MM: Attempt to cut down fcn calls by directly implementing here
-          %% Define Soliton parameters and derivatives in x and y
-            soli.w     = gpuArray(w);
-            soli.a     = @(x,y,t) gpuArray((sad-sau)/2*tanh(1/5*(y-soli.w/2))  - (sad-sau)/2*tanh(1/5*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
-            soli.ax    = @(x,y,t) gpuArray(zeros(size(x)));
-            soli.ay    = @(x,y,t) gpuArray((sad-sau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (sad-sau)/2*1/5*sech(1/5*(y+soli.w/2)).^2);
-            soli.q     = @(x,y,t) gpuArray((qad-qau)/2*tanh(1/5*(y-soli.w/2))  - (qad-qau)/2*tanh(1/5*(y+soli.w/2)));%qa(x,y,t);% qa   .* ones(size(x));
-            soli.qx    = @(x,y,t) gpuArray(zeros(size(x)));
-            soli.qy    = @(x,y,t) gpuArray((qad-qau)/2*1/5*sech(1/5*(y-soli.w/2)).^2 - (qad-qau)/2*1/5*sech(1/5*(y+soli.w/2)).^2);
-            soli.x0    = gpuArray(x0);
-            soli.y0    = gpuArray(y0);
-            soli.G = 0;
-      %% Define Soliton function, derivatives
-          soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT
-          soli.dx = @(theta,dxtheta,x,y,t,a,ax) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
-                     (ax(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
-                          dxtheta);
-          soli.dy = @(theta,dytheta,x,y,t,a,q,ay) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
-                     (ay(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
-                          dytheta);
-      % Theta and derivatives
-          soli.th = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
-          soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ax(x,y,t)+...
-                              a(x,y,t).*(-2+t*ax(x,y,t)-2*(y-2*t*q(x,y,t)).*qx(x,y,t)));
-          soli.thy = @(x,y,t,a,ay,q,qy,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ay(x,y,t)+...
-                              a(x,y,t).*(t.*ay(x,y,t)-2*y.*qy(x,y,t)+...
-                              q(x,y,t).*(-2+ 4*t.*qy(x,y,t))));
-        
-      % Asymptotic soliton approximation
-          soli.ua  = @(x,y,t)  soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                                      x-soli.x0,y-soli.y0,t,soli.a,soli.G);
-          soli.uax  = @(x,y,t) soli.dx(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                                  soli.thx(x-soli.x0,y-soli.y0,t,soli.a,soli.ax,soli.q,soli.qx,soli.G),...
-                                   x-soli.x0,y-soli.y0,t,soli.a,soli.ax);
-          soli.uay  = @(x,y,t) soli.dy(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                                       soli.thy(x-soli.x0,y-soli.y0,t,soli.a,soli.ay,soli.q,soli.qy,soli.G),...
-                                        x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
-        end
-    % Change Initial condition to include zero mean correction
-        
-        soli.y  = linspace(-Ly,Ly-(2*Ly/Ny),Ny);
-        soli.dipvec = zeros(size(soli.y));
-        for Nyi = 1:length(soli.y)
-            soli.dipvec(Nyi) = integral(@(x)gather(soli.ua(x,soli.y(Nyi),0)),-Lx,+Lx);
-        end
-    	soli.x0odd = x0_odd;
-        soli.dipw  = dipw;
-    	soli.dip    = @(x,y)    -1/(pi*soli.dipw)*...
-                                interp1(soli.y,soli.dipvec,y).*...
-                                sech((x-soli.x0odd)/soli.dipw);
-        soli.x0_odd = x0_odd;
-        soli.u0    = @(x,y)    soli.ua(x,y,0) + soli.dip(x,y);
-        
-        ic_type = ['_solikink_',...
-                    '_au_',num2str(sau),'_qu_',num2str(qau),...
-                    '_ad_',num2str(sad),'_qd_',num2str(qad),...
-                    '_x0_',num2str(x0) ,'_y0_',num2str(y0),...
-                    '_sechtest_w_',num2str(dipw)];
+    %    if ~gpu_on
+%             [ soli ] = vertical_segment(am,ad,au,...
+%                                      qm,qu,qd,...
+%                                      x0,y0,w,Lx,Ly,Nx,Ny,tstart);
+    %    else
+           [ soli ] = vertical_segment(am,ad,au,...
+                                           qm,qu,qd,...
+                                           x0,y0,w,Lx,Ly,Nx,Ny,tstart);
+    %    end
+        % Change Initial condition to include zero mean correction
+        [ soli ] = zero_mean(soli,Ly,Lx,Ny,x0_odd);
+        ic_type = ['_solitest_true_soln'];
 
     %% Generate directory, save parameters
 	q = strsplit(pwd,filesep);
@@ -207,5 +159,4 @@ if plot_on
     send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'],'sim.png')
 else
     %send_mail_message('mdmaide2','Matlab',['Simulation ',data_dir,'done'])
-end
 end

@@ -1,0 +1,28 @@
+slurmstepd: error: Unable to get current working directory: No such file or directory
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+[Warning: Name is nonexistent or not a directory: /projects/mima6446/KP2/solver] 
+[> In path (line 109)
+  In addpath (line 94)
+  In driver_KP_solver_vertical_segment_fix_edges (line 60)] 
+{Undefined function or variable 'KP_solver_periodic'.
+
+Error in driver_KP_solver_vertical_segment_fix_edges (line 146)
+            KP_solver_periodic( t, Lx, Nx, Nt,...
+} 
+>> 

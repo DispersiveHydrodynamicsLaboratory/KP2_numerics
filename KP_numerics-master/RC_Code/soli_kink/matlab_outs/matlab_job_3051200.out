@@ -1,0 +1,41 @@
+slurmstepd: error: Unable to get current working directory: No such file or directory
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+{The following error occurred converting from gpuArray to double:
+Conversion to double from gpuArray is not possible.
+
+Error in integralCalc/iterateArrayValued (line 184)
+                qsubs(:,1) = qsubsk(:);
+
+Error in integralCalc/vadapt (line 130)
+            [q,errbnd] = iterateArrayValued(u,tinterval,pathlen);
+
+Error in integralCalc (line 75)
+        [q,errbnd] = vadapt(@AtoBInvTransform,interval);
+
+Error in integral (line 88)
+Q = integralCalc(fun,a,b,opstruct);
+
+Error in vertical_segment_GPU (line 53)
+                soli.th.intx(Nxi,:) =
+                integral(@(x)sqrt(soli.a(x,soli.y,tstart)/12),0,soli.x(Nxi),'ArrayValued',1);
+                
+Error in driver_KP_solver_vertical_segment_fix_edges (line 39)
+            [ soli ] = vertical_segment_GPU(am,ad,au,...
+} 
+>> 

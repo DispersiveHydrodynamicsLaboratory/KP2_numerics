@@ -59,7 +59,7 @@ domain = struct;
     disp([' Time interval:  [', num2str(t(1)),...
            ',',num2str(t(end)),']']);
     % Construct initial condition on spatial domain
-    u_init = gpuArray(u0.u0(domain.X,domain.Y));
+    u_init = u0.u0(gather(domain.X),gather(domain.Y));
     u      = u_init; tnow = min(t);
     % Construct initial v, the windowed version of u
     v_init = u_init - (1 - W.o) .* u0.ua(domain.X,domain.Y,0);
@@ -74,6 +74,8 @@ domain = struct;
 	save(strcat(data_dir,num2str(inc,'%05d')),...
                 'u','u_init','v','v_init','Vhat',...
                 'Vhat_init','inc','tnow');
+	Vhat_init = gpuArray(Vhat_init);
+    
 	inc = inc + 1;
     disp(['Time = ',num2str(tout(inc)),', inc = ',int2str(inc),...
           '/',int2str(length(tout))]);

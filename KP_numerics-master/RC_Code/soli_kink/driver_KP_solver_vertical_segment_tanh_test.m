@@ -80,7 +80,7 @@ for tw = [1 5 10 20]
             soli.dipvec(Nyi) = integral(@(x)gather(soli.ua(x,soli.y(Nyi),0)),-Lx,+Lx);
         end
     	soli.x0odd = x0_odd;
-        soli.dipw  = dipw;
+        soli.dipw  = 5;
     	soli.dip    = @(x,y)    -1/(pi*soli.dipw)*...
                                 interp1(soli.y,soli.dipvec,y).*...
                                 sech((x-soli.x0odd)/soli.dipw);

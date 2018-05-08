@@ -12,7 +12,7 @@ save_on = 1;
     lo_back_V = 2*qm + 2/3*sam;
     lo_lead_V = 2*qd + 2/3*sad;
     % Initial condition of a RW started at time tstart
-    tstart = 20;
+    tstart = 10;
 %     Lx = 300; Nx = 2^8;
 %     Ly = 200; Ny = Nx;
 %     %% x and y vectors
@@ -100,7 +100,7 @@ if num_on
             plot(t,mean_u,'.');
         subplot(2,1,2);
             plot(t,max_u,'.',...
-                tasy*w, aasy,'-');
+                tasy, aasy,'-');
 end
 
 return;
