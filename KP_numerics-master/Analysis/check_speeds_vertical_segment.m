@@ -11,6 +11,7 @@ save_on = 1;
     up_back_V = 2*qm - 2/3*sam;
     lo_back_V = 2*qm + 2/3*sam;
     lo_lead_V = 2*qd + 2/3*sad;
+<<<<<<< HEAD
     % Initial condition of a RW started at time tstart
     tstart = 20;
 %     Lx = 300; Nx = 2^8;
@@ -20,6 +21,12 @@ save_on = 1;
 %     y = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
 %     [X,Y] = meshgrid(x,y);
 load([data_dir,'parameters.mat'],'Nx','Ny','Lx','Ly','t');
+=======
+    
+%     Lx = 300; Nx = 2^8;
+%     Ly = 200; Ny = Nx;
+load(['parameters.mat'],'Lx','Ly','Nx','Ny');
+>>>>>>> master
 %% x and y vectors
     x = (2*Lx/Nx)*[-Nx/2:Nx/2-1];
     y = (2*Ly/Ny)*[-Ny/2:Ny/2-1];
@@ -113,9 +120,15 @@ return;
         [f2,ax2]=plot_nice_contour(data_dir,t,2);
 %         [f2,ax2] = plot_nice_contour([pwd,filesep],t,2);
             ti = 1;
+<<<<<<< HEAD
             title(['Time: ',num2str(t)]);
     end
     set(ax2,'XLim',[Lx/4 3*Lx/4],'YLim',[-Ly Ly],'CLim',[0 0.85]);
+=======
+        t = 50;
+    end
+    set(ax2,'XLim',[0 150],'YLim',[-Ly Ly],'CLim',[0 0.85]);
+>>>>>>> master
         set(f2,'Color','w'); set(gca,'fontsize',20);
         drawnow;
         if save_on

@@ -61,4 +61,4 @@ function [ soli ] = vertical_segment(am,ad,au,...
      soli.uax = @(x,y,t) gpuArray( zeros(size(x)) );
      soli.uay = @(x,y,t) gpuArray( zeros(size(x)) );
      
-        end
+end
