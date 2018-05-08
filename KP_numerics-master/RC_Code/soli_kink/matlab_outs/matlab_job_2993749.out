@@ -1,0 +1,184 @@
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+
+soli = 
+
+  struct with fields:
+
+     w: [1x1 gpuArray]
+    tw: [1x1 gpuArray]
+
+Solving KP eqtn.
+ Time interval:  [0,10]
+Time = 0, inc = 1/11
+Calculating 1 out of 10
+Calculating 2 out of 10
+Calculating 3 out of 10
+Calculating 4 out of 10
+Calculating 5 out of 10
+Calculating 6 out of 10
+Calculating 7 out of 10
+Calculating 8 out of 10
+Calculating 9 out of 10
+Calculating 10 out of 10
+Calculation Finished
+Computation time = 0d 0h 15m 27.7617s
+
+soli = 
+
+  struct with fields:
+
+         w: [1x1 gpuArray]
+        tw: [1x1 gpuArray]
+         a: [function_handle]
+        ax: @(x,y,t)gpuArray(zeros(size(x)))
+        ay: [function_handle]
+         q: [function_handle]
+        qx: @(x,y,t)gpuArray(zeros(size(x)))
+        qy: [function_handle]
+        x0: [1x1 gpuArray]
+        y0: [1x1 gpuArray]
+         G: 0
+         u: @(theta,x,y,t,a,g)g+a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2
+        dx: [function_handle]
+        dy: [function_handle]
+        th: @(x,y,t,a,q,g)(x+q(x,y,t).*y-(a(x,y,t)/3+q(x,y,t).^2+g)*t)
+       thx: [function_handle]
+       thy: [function_handle]
+        ua: [function_handle]
+       uax: [function_handle]
+       uay: [function_handle]
+         y: [1x512 double]
+    dipvec: [1x512 double]
+     x0odd: -200
+      dipw: 5
+       dip: [function_handle]
+    x0_odd: -200
+        u0: @(x,y)soli.ua(x,y,0)+soli.dip(x,y)
+
+Solving KP eqtn.
+ Time interval:  [0,10]
+Time = 0, inc = 1/11
+Calculating 1 out of 10
+Calculating 2 out of 10
+Calculating 3 out of 10
+Calculating 4 out of 10
+Calculating 5 out of 10
+Calculating 6 out of 10
+Calculating 7 out of 10
+Calculating 8 out of 10
+Calculating 9 out of 10
+Calculating 10 out of 10
+Calculation Finished
+Computation time = 0d 0h 11m 0.1586s
+
+soli = 
+
+  struct with fields:
+
+         w: [1x1 gpuArray]
+        tw: [1x1 gpuArray]
+         a: [function_handle]
+        ax: @(x,y,t)gpuArray(zeros(size(x)))
+        ay: [function_handle]
+         q: [function_handle]
+        qx: @(x,y,t)gpuArray(zeros(size(x)))
+        qy: [function_handle]
+        x0: [1x1 gpuArray]
+        y0: [1x1 gpuArray]
+         G: 0
+         u: @(theta,x,y,t,a,g)g+a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2
+        dx: [function_handle]
+        dy: [function_handle]
+        th: @(x,y,t,a,q,g)(x+q(x,y,t).*y-(a(x,y,t)/3+q(x,y,t).^2+g)*t)
+       thx: [function_handle]
+       thy: [function_handle]
+        ua: [function_handle]
+       uax: [function_handle]
+       uay: [function_handle]
+         y: [1x512 double]
+    dipvec: [1x512 double]
+     x0odd: -200
+      dipw: 5
+       dip: [function_handle]
+    x0_odd: -200
+        u0: @(x,y)soli.ua(x,y,0)+soli.dip(x,y)
+
+Solving KP eqtn.
+ Time interval:  [0,10]
+Time = 0, inc = 1/11
+Calculating 1 out of 10
+Calculating 2 out of 10
+Calculating 3 out of 10
+Calculating 4 out of 10
+Calculating 5 out of 10
+Calculating 6 out of 10
+Calculating 7 out of 10
+Calculating 8 out of 10
+Calculating 9 out of 10
+Calculating 10 out of 10
+Calculation Finished
+Computation time = 0d 0h 11m 44.497s
+
+soli = 
+
+  struct with fields:
+
+         w: [1x1 gpuArray]
+        tw: [1x1 gpuArray]
+         a: [function_handle]
+        ax: @(x,y,t)gpuArray(zeros(size(x)))
+        ay: [function_handle]
+         q: [function_handle]
+        qx: @(x,y,t)gpuArray(zeros(size(x)))
+        qy: [function_handle]
+        x0: [1x1 gpuArray]
+        y0: [1x1 gpuArray]
+         G: 0
+         u: @(theta,x,y,t,a,g)g+a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2
+        dx: [function_handle]
+        dy: [function_handle]
+        th: @(x,y,t,a,q,g)(x+q(x,y,t).*y-(a(x,y,t)/3+q(x,y,t).^2+g)*t)
+       thx: [function_handle]
+       thy: [function_handle]
+        ua: [function_handle]
+       uax: [function_handle]
+       uay: [function_handle]
+         y: [1x512 double]
+    dipvec: [1x512 double]
+     x0odd: -200
+      dipw: 5
+       dip: [function_handle]
+    x0_odd: -200
+        u0: @(x,y)soli.ua(x,y,0)+soli.dip(x,y)
+
+Solving KP eqtn.
+ Time interval:  [0,10]
+Time = 0, inc = 1/11
+Calculating 1 out of 10
+Calculating 2 out of 10
+Calculating 3 out of 10
+Calculating 4 out of 10
+Calculating 5 out of 10
+Calculating 6 out of 10
+Calculating 7 out of 10
+Calculating 8 out of 10
+Calculating 9 out of 10
+Calculating 10 out of 10
+Calculation Finished
+Computation time = 0d 0h 12m 31.1158s

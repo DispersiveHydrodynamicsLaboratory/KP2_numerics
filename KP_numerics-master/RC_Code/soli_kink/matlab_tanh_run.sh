@@ -11,4 +11,4 @@
 module purge
 module load matlab
 
-matlab -nodisplay -nodesktop -r "clear; hello; driver_KP_solver_vertical_segment; clear all;exit();"
+matlab -nodisplay -nodesktop -r "clear; hello; driver_KP_solver_vertical_segment_tanh_run; clear all;exit();"

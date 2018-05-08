@@ -4,21 +4,21 @@ save_on  = 1;  % Set to nonzero if you want to run the solver, set
                % to 0 if you want to plot
 rmdir_on = 0;  % Set to nonzero if you want to delete and remake the chosen directory
                % Useful for debugging
-gpu_on   = 0;  % set to nonzero to use GPU, otherwise CPU
+gpu_on   = 1;  % set to nonzero to use GPU, otherwise CPU
 periodic = 1;  % set to nonzero to run periodic solver (no BCs need)
                % set to 0 to run solver with time-dependent BCs
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver
-check_IC = 1;  % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0;  % Set to nonzero to plot the ICs and BCs without running the solver
 
 dd = struct();
     %% Numerical Parameters
-    tmax   = 20;      % Solver will run from t=0 to t = tmax
+    tmax   = 1;      % Solver will run from t=0 to t = tmax
     numout = tmax+1; % numout times will be saved (including ICs)
     Lx     = 400;     % Solver will run on x \in [-Lx,Lx]
     Ly     = 200;     % Solver will run on y \in [-Ly,Ly]
-    Nxexp  = 9;
-    Nyexp  = 8;
+    Nxexp  = 8; %9
+    Nyexp  = 7; %8
     Nx     = 2^Nxexp;    % Number of Fourier modes in x-direction
     Ny     = 2^Nyexp;    % Number of Fourier modes in y-direction
 
@@ -31,17 +31,17 @@ dd = struct();
         w = 100; % width of soliton line segment
         tstart = 10; % time at which original profile is generated
             x0 = 200; y0 = 0; x0_odd = -200;
-        if ~gpu_on
-            [ soli ] = vertical_segment(am,ad,au,...
-                                            qm,qu,qd,...
-                                            x0,y0,Lx,w);
-        else
-            [ soli ] = vertical_segment_GPU(am,ad,su,...
-                                            qm,qu,qd,...
-                                            x0,y0,Lx,w);
-        end
+    %    if ~gpu_on
+%             [ soli ] = vertical_segment(am,ad,au,...
+%                                      qm,qu,qd,...
+%                                      x0,y0,w,Lx,Ly,Nx,Ny,tstart);
+    %    else
+           [ soli ] = vertical_segment(am,ad,au,...
+                                           qm,qu,qd,...
+                                           x0,y0,w,Lx,Ly,Nx,Ny,tstart);
+    %    end
         % Change Initial condition to include zero mean correction
-        [ soli ] = zero_mean(soli,Ly,Lx,Ny,x0_odd,tstart);
+        [ soli ] = zero_mean(soli,Ly,Lx,Ny,x0_odd);
         ic_type = ['_solitest_true_soln'];
 
     %% Generate directory, save parameters

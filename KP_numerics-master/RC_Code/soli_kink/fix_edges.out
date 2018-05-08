@@ -1,0 +1,53 @@
+slurmstepd: error: Unable to get current working directory: No such file or directory
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+
+ans =
+
+    'double'
+
+Warning, directory /rc_scratch/mima6446/Numerics/KP/_tmax_10_Lx_400_Nx_512_Ly_200_Ny_256_bndry_condns_periodic_init_condns__solitest_true_soln/
+already exists, possibly overwriting data
+Solving KP eqtn.
+ Time interval:  [0,10]
+{Error using gpuArray/interp2
+gpuArray does not support the spline method. Supported interpolation methods
+are: 'LINEAR', 'NEAREST', 'CUBIC'.
+
+Error in
+vertical_segment>@(x,y)interp2(soli.y',soli.x,(soli.th.intx+soli.th.inty),y,x,'spline')+soli.th.intt(end)
+(line 58)
+            soli.th.f = @(x,y) interp2(soli.y',soli.x,(soli.th.intx +
+            soli.th.inty),y,x,'spline') + soli.th.intt(end);
+
+Error in
+vertical_segment>@(x,y)soli.u(soli.th.f(x-soli.x0,y-soli.y0),x-soli.x0,y-soli.y0,tstart,soli.a,soli.G)
+(line 64)
+        soli.us = @(x,y)
+        soli.u(soli.th.f(x-soli.x0,y-soli.y0),x-soli.x0,y-soli.y0,tstart,soli.a,soli.G);
+        
+Error in zero_mean>@(x,y)soli.us(x,y)+soli.dip(x,y) (line 14)
+        soli.u0    = @(x,y)    soli.us(x,y) + soli.dip(x,y);
+
+Error in KP_solver_periodic (line 62)
+    u_init = gpuArray(u0.u0(domain.X,domain.Y));
+
+Error in driver_KP_solver_vertical_segment_fix_edges (line 146)
+            KP_solver_periodic( t, Lx, Nx, Nt,...
+} 
+>> 

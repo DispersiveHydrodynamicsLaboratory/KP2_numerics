@@ -1,0 +1,29 @@
+slurmstepd: error: Unable to get current working directory: No such file or directory
+
+The following modules were not unloaded:
+   (Use "module --force purge" to unload all):
+
+  1) slurm/blanca
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Running hello...
+Hello, World
+     1     0     0     0     0     0     0     0     0     0
+     2     0     0     0     0     0     0     0     0     0
+     3     0     0     0     0     0     0     0     0     0
+     4     0     0     0     0     0     0     0     0     0
+     5     0     0     0     0     0     0     0     0     0
+     6     0     0     0     0     0     0     0     0     0
+     7     0     0     0     0     0     0     0     0     0
+     8     0     0     0     0     0     0     0     0     0
+     9     0     0     0     0     0     0     0     0     0
+    10     0     0     0     0     0     0     0     0     0
+
