@@ -1,0 +1,3 @@
+Dir Name: /Volumes/Data Storage/Numerics/KP/_tmax_150_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solitest_true_soln/
+Soliton Amplitudes:   Top: 0   Mid: 1   Bot: 0
+Profile start: 30   Middle portion width: 100
