@@ -1,75 +1,64 @@
-function [ soli ] = vertical_segment( sau, sad, qau, qad, x0, y0, Lx, w )
-%Creates a structure that's a soliton IC
-% Inputs
-% sa: square root of the amplitude
-% qa: slope of the angle of propagation
+function [ soli ] = vertical_segment(am,ad,au,...
+                                     qm,qu,qd,...
+                                     x0,y0,w,Lx,Ly,Nx,Ny,tstart)
+	soli.x  = linspace(-Lx,Lx-(2*Lx/Nx),Nx);
+	soli.y  = linspace(-Ly,Ly-(2*Ly/Ny),Ny);
+    [X,Y] = meshgrid(soli.x,soli.y);
+    soli.Y = Y;
+    soli.X = X;
+	%% CURRENTLY ASSUMES am=1
+    if am~=1
+        disp('Setting middle state to 1...');
+        am = 1;
+    end
+          %% Define Soliton parameters and derivatives in x and y
+            soli.w     = (w);
+            soli.a     = @(x,y,t) ones(size(x)).*(...
+                                  au                         .*( (y-soli.w/2)./t >= 2-4/3*sqrt(au) ) + ...
+                                  9/64*(2-(y-soli.w/2)./t).^2 .*(-2/3<(y-soli.w/2)./t).*((y-soli.w/2)./t<2-4/3*sqrt(au)) +...
+                                  1                          .*((y-soli.w/2)./t<=-2/3).*((y+soli.w/2)./t>=+2/3) +...
+                                  9/64*(2+(y+soli.w/2)./t).^2 .*(+2/3>(y+soli.w/2)./t).*((y+soli.w/2)./t>4/3*sqrt(au)-2) +...
+                                  ad                         .*( (y+soli.w/2)./t <= 4/3*sqrt(ad)-2)...
+                                  );
+            soli.ax    = @(x,y,t) (zeros(size(x)));
+            soli.ay    = @(x,y,t) zeros(size(x));
+%                                   9/32*(2-(y-soli.w/2)./t)/t .*(-2/3<(y-soli.w/2)./t).*((y-soli.w/2)./t<2-4/3*sqrt(au)) +...
+%                                   9/32*(2+(y+soli.w/2)./t)/t .*(+2/3>(y+soli.w/2)./t).*((y+soli.w/2)./t>4/3*sqrt(au)-2);
+            soli.q     = @(x,y,t) ((1-sqrt(soli.a(x,y,t)))     .*(-2/3<(y-soli.w/2)./t) + ...
+                                  (sqrt(soli.a(x,y,t))-1)    .*(+2/3>(y+soli.w/2)./t));
+            soli.qx    = @(x,y,t) (zeros(size(x)));
+            soli.qy    = @(x,y,t) zeros(size(x));
+            soli.x0    = (x0);
+            soli.y0    = (y0);
+            soli.G = 0;
+      %% Define Soliton function, derivatives
+          soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT
+          soli.dx = @(x,y,t) (zeros(size(x)));
+          soli.dy = @(x,y,t) (zeros(size(x)));
 
-verbose = 0; % nonzero means plotting, text output, etc
-
-%% Define Soliton parameters and derivatives in x and y
-    soli.tw    = 1/10; %tanh width factor
-    soli.w     = w;
-    soli.a     = @(x,y,t) (sad-sau)/2*tanh(soli.tw*(y-soli.w/2)) - (sad-sau)/2*tanh(soli.tw*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
-    soli.ax    = @(x,y,t) zeros(size(x));
-    soli.ay    = @(x,y,t) (sad-sau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (sad-sau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2;
-    soli.q     = @(x,y,t) (qad-qau)/2*tanh(soli.tw*(y-soli.w/2)) - (qad-qau)/2*tanh(soli.tw*(y+soli.w/2));%qa(x,y,t);% qa   .* ones(size(x));
-    soli.qx    = @(x,y,t) zeros(size(x));
-    soli.qy    = @(x,y,t) (qad-qau)/2*soli.tw*sech(soli.tw*(y-soli.w/2)).^2 - (qad-qau)/2*soli.tw*sech(soli.tw*(y+soli.w/2)).^2;
-    soli.x0    = x0;
-    soli.y0    = y0;
-soli.G = 0;
-%% Define Soliton function, derivatives
-    soli.u  = @(theta,x,y,t,a,g) g + a(x,y,t).*(sech(sqrt(a(x,y,t)/12).*theta)).^2; % CORRECT
-    soli.dx = @(theta,dxtheta,x,y,t,a,ax) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
-               (ax(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
-                    dxtheta);
-    soli.dy = @(theta,dytheta,x,y,t,a,q,ay) sech(sqrt(a(x,y,t)/12).*theta).^2.*...
-               (ay(x,y,t) + sqrt(a(x,y,t)/12).*tanh(sqrt(a(x,y,t)/12).*theta).*...
-                    dytheta);
-% Theta and derivatives
-    soli.th = @(x,y,t,a,q,g) (x + q(x,y,t).*y - (a(x,y,t)/3+q(x,y,t).^2+g) * t); % FIXED
-    soli.thx = @(x,y,t,a,ax,q,qx,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ax(x,y,t)+...
-                        a(x,y,t).*(-2+t*ax(x,y,t)-2*(y-2*t*q(x,y,t)).*qx(x,y,t)));
-    soli.thy = @(x,y,t,a,ay,q,qy,g) ((g*t-x-y.*q(x,y,t)+t*q(x,y,t).^2).*ay(x,y,t)+...
-                        a(x,y,t).*(t.*ay(x,y,t)-2*y.*qy(x,y,t)+...
-                        q(x,y,t).*(-2+ 4*t.*qy(x,y,t))));
-  
-% Asymptotic soliton approximation
-    soli.ua  = @(x,y,t)  soli.u(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                                x-soli.x0,y-soli.y0,t,soli.a,soli.G);
-    soli.uax  = @(x,y,t) soli.dx(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                            soli.thx(x-soli.x0,y-soli.y0,t,soli.a,soli.ax,soli.q,soli.qx,soli.G),...
-                             x-soli.x0,y-soli.y0,t,soli.a,soli.ax);
-    soli.uay  = @(x,y,t) soli.dy(soli.th(x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.G),...
-                                 soli.thy(x-soli.x0,y-soli.y0,t,soli.a,soli.ay,soli.q,soli.qy,soli.G),...
-                                  x-soli.x0,y-soli.y0,t,soli.a,soli.q,soli.ay);
-% Initial condition
-    soli.u0    = @(x,y)    soli.ua(x,y,0);
-
-        % Figure for debugging
-        if verbose
-            xplot = -Lx:0.5:Lx;
-            yplot = -Lx/2:0.5:Lx/2;
-            [XPLOT,YPLOT] = meshgrid(xplot,yplot);
-            figure(1); clf;
-            subplot(2,2,1)
-                contourf(XPLOT,YPLOT,soli.u0(XPLOT,YPLOT),100,'edgecolor','none'); xlabel('x'); ylabel('y');
-                title('Initial Conditions');
-            for ti = linspace(0,5,2)
-                subplot(2,2,2)
-                    contourf(XPLOT,YPLOT,soli.ua(XPLOT,YPLOT,ti),100,'edgecolor','none'); xlabel('x'); ylabel('y');
-                    title(['Asymptotic u, t=',num2str(ti)]);
-                subplot(2,2,3)
-                    contourf(XPLOT,YPLOT,soli.uax(XPLOT,YPLOT,ti),100,'edgecolor','none'); xlabel('x'); ylabel('y');
-                    title('Asymptotic u, x-deriv');
-                subplot(2,2,4)
-                    contourf(XPLOT,YPLOT,soli.uay(XPLOT,YPLOT,ti),100,'edgecolor','none'); xlabel('x'); ylabel('y');
-                    title('Asymptotic u, y-deriv');
-    %             set(gca,'fontsize',fontsize,'fontname','times');
-                drawnow;
-                pause(0.25);
+          soli.th.intx = soli.X;
+            
+          soli.th.inty = zeros(Ny,Nx);
+            for Nyi = 1:length(soli.y)
+                soli.th.inty(Nyi,:) = integral(@(y)soli.q(0,y,tstart),0,soli.y(Nyi));
             end
-        end
+            
+          soli.t = 0.01:0.01:tstart;
+          soli.th.intt = zeros(1,length(soli.t));
+            for Nti = 1:length(soli.t)
+                soli.th.intt(Nti) = -integral(@(t)(soli.a(0,0,t)/3+soli.q(0,0,t).^2+soli.G),0,soli.t(Nti));
+            end
 
+            % function that calculates theta at time tstart for all (x,y)
+%             soli.th.sa = sqrt(soli.a(soli.X,soli.Y,tstart)/12);
+            soli.th.f = @(x,y) interp2(soli.x,soli.y,(soli.th.intx + soli.th.inty),x,y,'spline') + soli.th.intt(end);
+            
+     % Initial soliton approximation
+        soli.us = @(x,y) soli.u(soli.th.f(x-soli.x0,y-soli.y0),x-soli.x0,y-soli.y0,tstart,soli.a,soli.G);
+        
+     % Assume can get away with asymptotic approximation of 0
+     soli.ua = @(x,y,t) gpuArray( zeros(size(x)) );
+     soli.uax = @(x,y,t) gpuArray( zeros(size(x)) );
+     soli.uay = @(x,y,t) gpuArray( zeros(size(x)) );
+     
 end
-
