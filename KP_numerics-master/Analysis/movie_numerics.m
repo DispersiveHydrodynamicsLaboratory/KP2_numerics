@@ -1,12 +1,15 @@
-% This script loads a set of images, extracts their time and then
-% generates a quicktime movie
-clear; close all; clc; % need to delete any potential movie objects
-
-data_dir = '/Volumes/Data Storage/Numerics/KP/_tmax_150_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solitest_true_soln/';
+%% Script for generating movies out of various things
+clear; close all; 
+if strcmp(getenv('computername'),'CAKELIE2012')
+    main_dir = 'H:\Numerics\KP\';
+else
+    main_dir = pwd;
+end
+run_dir  = '_tmax_150_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solitest_true_soln\';
+data_dir = [main_dir, run_dir];
 movie_name = 'true_soli_tstart_30_full';
 % Parameters
-pix = [1024]; % Number of pixels in horizontal direction
-tfac = 12;  % Speedup in time
+tfac = 6;  % Speedup in time
 num_files = Inf; % set to number of pictures desired; if Inf, will use all pictures
 fontsize = 20; % Fontsize for length and time scales
 show_time = 1; % Set nonzero if you want display of current time
@@ -15,7 +18,7 @@ xlims = [-800 800];
 ylims = [-400 400];
 clims = [-0.1 1];
 
-output_dir = [data_dir,'movie_files/'];
+output_dir = [pwd,'movie_files/'];
 
 if ~exist(output_dir,'dir');
     mkdir(output_dir);
@@ -31,8 +34,7 @@ load([data_dir,'parameters.mat'],'Nx','Ny','Lx','Ly','t');
         set(axh,'XLim',xlims,'YLim',ylims,'CLim',clims,'fontsize',fontsize);
         set(fh,'Color','w'); 
         title(['T = 0']);
-	disp(['Generating quicktime movie for horizontal pixel resolution ',...
-            int2str(pix)]);
+	disp(['Generating quicktime movie...']);
     % Create movie object
     movObj = QTWriter([output_dir,movie_name,'.mov'],...
                       'MovieFormat','Photo TIFF');%,'Quality',85);

@@ -1,3 +1,8 @@
-Dir Name: /Volumes/Data Storage/Numerics/KP/_tmax_150_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solitest_true_soln/
-Soliton Amplitudes:   Top: 0   Mid: 1   Bot: 0
-Profile start: 30   Middle portion width: 100
+Dir Name: _tmax_150_Lx_800_Nx_1024_Ly_400_Ny_512_bndry_condns_periodic_init_condns__solitest_true_soln\nSoliton Amplitudes:   Top: 0   Mid: 1   Bot: 0
+Soliton Angles of Propagation:   Top: 1   Mid: 0   Bot: -1
+Profile start: 30   Middle portion height: 100
+Time of transition to hodograph: 45
+Leading Edge Determination: find where soliton ampliude is: 0.05, where leading edges are edges moving away from the center. 
+Trailing Edge Determination: find where soliton ampliude is: 0.1, where trailing edges are edges moving towards the center. 
+Maximum mean: -2.6671e-11
+Contour plot time: 40
